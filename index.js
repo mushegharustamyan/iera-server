@@ -1,14 +1,22 @@
-const express = require("express")
-const cors = require("cors")
-const connectionInit = require("./db/init")
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const connectionInit = require("./db/init");
+const {sequelize} = require("./db/sequelize");
+const { createRole, createSuperUser } = require("./db/migrations");
+const app = express();
 
-const app = express()
+app.use(cors({ origin: "*" }));
+app.use(express.json());
 
-app.use(cors({ origin: "*" }))
-app.use(express.json())
+const port = process.env.PORT;
 
-app.listen(5000 , () => {
-  console.log("listen port 5000")
-  connectionInit()
-  .then(_ => console.log("Database conected"))
-})
+app.listen(port, () => {
+  console.log(`app listen [+] ${port}`);
+  connectionInit().then((_) => 
+      sequelize
+          .sync({alter : false, force: false}))
+          .then(_ => createRole()
+              .then(_ => createSuperUser()))
+        
+});
