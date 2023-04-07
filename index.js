@@ -18,8 +18,7 @@ app.listen(port, () => {
   console.log(`app listen [+] ${port}`);
   connectionInit().then((_) => 
       sequelize
-          .sync({alter : false, force: false}))
-          .then(_ => createRole()
-              .then(_ => createSuperUser()))
-        
+          .sync({alter : false, force: true}))
+          .then(_ => createRole())
+          .then(_ => createSuperUser())
 });

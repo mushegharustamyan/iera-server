@@ -21,7 +21,7 @@ const Role = sequelize.define("role", {
     allowNull: false,
     validate: {
       min: 1,
-      max: 2,
+      max: 3,
     },
   },
 });
@@ -87,5 +87,7 @@ const Event = sequelize.define("events", {
     type: DataTypes.STRING,
   },
 });
+
+User.belongsTo(Role , {foreignKey: "roleId"})
 
 module.exports = { sequelize, Role, User, News, Event };
