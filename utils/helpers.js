@@ -41,3 +41,6 @@ exports.sendResBody = (res, status = 200, body = {}) => {
 	return res.status(status).json(body)
 }
 
+exports.getEnv = (key) => {
+	return process.env[`${key}`]
+}

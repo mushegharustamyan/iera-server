@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt")
 const {User, Role} = require("./sequelize")
+const { getEnv } = require("../utils/helpers")
 
 exports.createRole = async () => {
     const newRole = {name: 'admin', access_level : 1 }
@@ -10,11 +11,11 @@ exports.createRole = async () => {
 }
 
 exports.createSuperUser = async () => {
-    const hashedPwd = await bcrypt.hash(process.env.ADMIN_PWD, 8)
+    const hashedPwd = await bcrypt.hash(getEnv("ADMIN_PWD"), 8)
 
     const admin = {
-        name: process.env.ADMIN_NAME,
-        login: process.env.ADMIN_LOGIN,
+        name: getEnv("ADMIN_NAME"),
+        login: getEnv("ADMIN_LOGIN"),
         password: hashedPwd,
     }
 

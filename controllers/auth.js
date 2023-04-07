@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require("bcrypt")
 const {User} = require('../db/sequelize')
-const { sendResStatus } = require('../utils/helpers')
+const { sendResStatus, getEnv } = require('../utils/helpers')
 
 exports.signin = (req,res) => {
     const { login , password} = req.body
@@ -15,7 +15,7 @@ exports.signin = (req,res) => {
             if(!user || !decoded){
                 return sendResStatus(res,409 , "Invalid Login or Password")
             }
-            const token = jwt.sign({id : user.id}, process.env.JWT_SECRET, {
+            const token = jwt.sign({id : user.id}, getEnv("JWT_SECRET"), {
                 expiresIn: 80000
             })
 
