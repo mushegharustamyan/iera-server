@@ -4,10 +4,13 @@ const cors = require("cors");
 const connectionInit = require("./db/init");
 const {sequelize} = require("./db/sequelize");
 const { createRole, createSuperUser } = require("./db/migrations");
+const { ConfigRouter } = require("./utils/app");
 const app = express();
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());
+
+ConfigRouter(app)
 
 const port = process.env.PORT;
 

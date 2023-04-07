@@ -1,5 +1,5 @@
 const adminAuthRouter = require('../routes/auth')
 
-const ConfigRouter = (app) => {
+exports.ConfigRouter = (app) => {
     app.use("/auth", adminAuthRouter)
 }
