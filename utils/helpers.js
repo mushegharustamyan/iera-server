@@ -10,6 +10,9 @@ exports.sendResStatus = (res, status, message = "") => {
 			case 202:
 				message = "Waiting for approval"
 				break
+			case 204:
+				message = "Record deleted"
+				break
 			case 400:
 				message = "Missing required fileds"
 				break
