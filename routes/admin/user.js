@@ -11,7 +11,7 @@ const {
 } = require("../../middlewares/admin/user");
 
 router.post(
-  "/user",
+  "/",
   [
     check("name").notEmpty().withMessage("User name cannot be empty"),
 
@@ -31,12 +31,12 @@ router.post(
   adminUserController.create
 );
 router.delete(
-  "/user/:id",
+  "/:id",
   [verifyAdmin, verifyUser, verifyIsNotAdmin],
   adminUserController.delete
 );
 router.put(
-  "/user/:id",
+  "/:id",
   [
     check("name")
       .optional()
@@ -60,7 +60,7 @@ router.put(
   [verifyAdmin, verifyUser ],
   adminUserController.update
 );
-router.get("/user", verifyAdmin, adminUserController.index);
-router.get("/user/:id", [verifyAdmin, verifyUser], adminUserController.show);
+router.get("/", verifyAdmin, adminUserController.index);
+router.get("/:id", [verifyAdmin, verifyUser], adminUserController.show);
 
 module.exports = router;
