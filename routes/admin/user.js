@@ -2,7 +2,6 @@ const { check } = require("express-validator");
 const express = require("express");
 const router = express.Router();
 
-// const verifyCreate = require("../../"s)
 const verifyAdmin = require("../auth");
 const adminUserController = require("../../controllers/admin/user");
 const {
@@ -33,7 +32,7 @@ router.post(
 );
 router.delete(
   "/user/:id",
-  [verifyAdmin, verifyUser],
+  [verifyAdmin, verifyUser, verifyIsNotAdmin],
   adminUserController.delete
 );
 router.put(
@@ -58,7 +57,7 @@ router.put(
       .isLength({ min: 8 })
       .withMessage("Password must be at least 8 characters"),
   ],
-  [verifyAdmin, verifyUser, ],
+  [verifyAdmin, verifyUser ],
   adminUserController.update
 );
 router.get("/user", verifyAdmin, adminUserController.index);

@@ -39,6 +39,15 @@ exports.sendResStatus = (res, status, message = "") => {
 	return res.status(status).send()
 }
 
+exports.removeNullOrUndefined = (obj) => {
+  return Object.entries(obj).reduce((acc, [key, value]) => {
+    if (value !== null && value !== undefined) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+};
+
 exports.sendResBody = (res, status = 200, body = {}) => {
 	res.statusMessage = "success"
 	return res.status(status).json(body)

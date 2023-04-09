@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../../db/sequelize");
+const { removeNullOrUndefined } = require("../../utils/helpers")
 
 const { sendResStatus, sendResBody } = require("../../utils/helpers");
 
@@ -26,18 +27,10 @@ exports.delete = (req, res) => {
     .catch((_) => sendResStatus(res, 500));
 };
 
-const removeNullOrUndefined = (obj) => {
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    if (value !== null && value !== undefined) {
-      acc[key] = value;
-    }
-    return acc;
-  }, {});
-};
-
 exports.update = (req, res) => {
   const { id } = req.params;
   const { name, password, login, roleId } = req.body;
+
   const filter = removeNullOrUndefined({
     name,
     password,
@@ -45,18 +38,12 @@ exports.update = (req, res) => {
     password,
     roleId,
   });
-  console.log(filter);
-  User.findOne({ where: filter })
-    .then((user) => {
-      if (user) return sendResStatus(res, 409), "User already exist";
-    })
-    .then((_) => {
-      User.update(filter, {
-        where: { id },
-      })
-        .then((_) => sendResStatus(res, 201, "Record updated"))
-        .then((_) => sendResStatus(res, 500));
-    });
+    
+  User.update(filter, {
+    where: { id },
+  })
+  .then((_) => sendResStatus(res, 201, "Record updated"))
+  .then((_) => sendResStatus(res, 500));
 };
 
 exports.index = (req, res) => {
