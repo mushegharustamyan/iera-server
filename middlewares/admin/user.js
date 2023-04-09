@@ -1,42 +1,49 @@
-const { User, Role } = require("../../db/sequelize")
-const { sendResStatus } = require("../../utils/helpers")
+const { validationResult } = require("express-validator");
+const { User, Role } = require("../../db/sequelize");
+const { sendResStatus, sendResBody } = require("../../utils/helpers");
 
-exports.verifyCreate = (req , res, next) => {
-    const {name , login , password , roleId} = req.body
+exports.verifyCreate = (req, res, next) => {
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(409).json({ error: error.array() });
+  }
 
-    if(!name || !login || !password || !roleId) return sendResStatus(res , 400 )
+  const { name, login, password, roleId } = req.body;
 
-    User.findOne({where: {login}})
+  if (!name || !login || !password || !roleId) return sendResStatus(res, 400);
+
+  User.findOne({ where: { login } })
     .then((user) => {
-        console.log(user)
-        if(user) return sendResStatus(res, 409)
+      console.log(user);
+      if (user) return sendResStatus(res, 409);
 
-        next()
+      next();
     })
-    .catch((_) => console.log("error"))
-}
+    .catch((_) => console.log("error"));
+};
 
-exports.verifyUser = (req , res , next) => {
-    const {id} = req.params
+exports.verifyUser = (req, res, next) => {
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(409).json({ error: error.array() });
+  }
 
-    User.findByPk(id)
-    .then((user) => {
-        if(!user) return sendResStatus(res, 404)
+  const { id } = req.params;
+  User.findByPk(id).then((user) => {
+    if (!user) return sendResStatus(res, 404);
 
-        next()
-    })
-}
+    next();
+  });
+};
 
-exports.verifyIsNotAdmin = (req , res , next) => {
-    const {id} = req.params
+exports.verifyIsNotAdmin = (req, res, next) => {
+  const { id } = req.params;
 
-    User.findByPk(id)
-    .then((user) => {
-        Role.findByPk(user.roleId)
-        .then((role) => {
-            if(role.access_level === 1) return sendResStatus(res, 403)
+  User.findByPk(id).then((user) => {
+    Role.findByPk(user.roleId).then((role) => {
+      if (role.access_level === 1) return sendResStatus(res, 403);
 
-            next()
-        })
-    })
-}
+      next();
+    });
+  });
+};
