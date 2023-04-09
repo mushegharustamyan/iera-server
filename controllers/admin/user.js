@@ -31,7 +31,7 @@ exports.update = (req, res) => {
   const { id } = req.params;
   const { name, password, login, roleId } = req.body;
 
-  const filter = removeNullOrUndefined({
+  const body = removeNullOrUndefined({
     name,
     password,
     login,
@@ -39,7 +39,7 @@ exports.update = (req, res) => {
     roleId,
   });
     
-  User.update(filter, {
+  User.update(body, {
     where: { id },
   })
   .then((_) => sendResStatus(res, 201, "Record updated"))
