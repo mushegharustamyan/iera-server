@@ -38,12 +38,17 @@ exports.update = (req, res) => {
     password,
     roleId,
   });
-    
-  User.update(body, {
-    where: { id },
+
+  User.findOne({where: body})
+  .then((user) => {
+    if(user) return sendResStatus(res , 403)
+
+    User.update(body, {
+      where: { id },
+    })
+    .then((_) => sendResStatus(res, 201, "Record updated"))
+    .then((_) => sendResStatus(res, 500));
   })
-  .then((_) => sendResStatus(res, 201, "Record updated"))
-  .then((_) => sendResStatus(res, 500));
 };
 
 exports.index = (req, res) => {
