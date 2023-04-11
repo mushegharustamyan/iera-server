@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../../db/sequelize");
-const { removeNullOrUndefined } = require("../../utils/helpers")
+const { removeNullOrUndefined } = require("../../utils/helpers");
 
 const { sendResStatus, sendResBody } = require("../../utils/helpers");
 
@@ -39,16 +39,15 @@ exports.update = (req, res) => {
     roleId,
   });
 
-  User.findOne({where: body})
-  .then((user) => {
-    if(user) return sendResStatus(res , 403)
+  User.findOne({ where: body }).then((user) => {
+    if (user) return sendResStatus(res, 403);
 
     User.update(body, {
       where: { id },
     })
-    .then((_) => sendResStatus(res, 201, "Record updated"))
-    .then((_) => sendResStatus(res, 500));
-  })
+      .then((_) => sendResStatus(res, 201, "Record updated"))
+      .then((_) => sendResStatus(res, 500));
+  });
 };
 
 exports.index = (req, res) => {
