@@ -12,19 +12,27 @@ exports.index = (req, res) => {
   const validOrder = ["DESC, ASC"];
   const selectedOrder = validOrder.includes(order) ? order : "ASC";
 
-  const filter =
-    startDate && endDate
-      ? {
-          [Op.and]: [
-            { createdAt: { [Op.gte]: startDate } },
-            { createdAt: { [Op.lte]: endDate } },
-          ],
-        }
-      : {};
-
-  News.findAll({ where: filter }, { order: [["createdAt", selectedOrder]] })
+  if(!startDate && !endDate) {
+    return News.findAll({ order: [["createdAt", selectedOrder]] })
     .then((result) => sendResBody(res, 200, result))
     .catch((_) => sendResStatus(res, 500));
+  } else {
+    const filter = 
+      startDate && endDate
+        ? {
+            [Op.and]: [
+              { createdAt: { [Op.gte]: startDate } },
+              { createdAt: { [Op.lte]: endDate } },
+            ],
+          }
+        : { createdAt: { [Op.eq]: startDate ?? endDate } }
+    
+        console.log(filter)
+
+    return News.findAll({ where: filter }, { order: [["createdAt", selectedOrder]] })
+      .then((result) => sendResBody(res, 200, result))
+      .catch((_) => sendResStatus(res, 500));
+  }
 };
 
 exports.show = (req, res) => {
