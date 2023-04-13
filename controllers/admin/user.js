@@ -1,12 +1,11 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../../db/sequelize");
-const { removeNullOrUndefined } = require("../../utils/helpers")
+const { removeNullOrUndefined } = require("../../utils/helpers");
 
 const { sendResStatus, sendResBody } = require("../../utils/helpers");
 
 exports.create = async (req, res) => {
   const { name, password, login, roleId } = req.body;
-
   const hashedPwd = await bcrypt.hash(password, 8);
 
   User.create({
@@ -16,7 +15,7 @@ exports.create = async (req, res) => {
     roleId,
   })
     .then((_) => sendResStatus(res, 201, "User Created"))
-    .catch((_) => sendResStatus(res, 500));
+    .catch((e) => sendResStatus(res, 500,));
 };
 
 exports.delete = (req, res) => {
@@ -38,12 +37,16 @@ exports.update = (req, res) => {
     password,
     roleId,
   });
-    
-  User.update(body, {
-    where: { id },
-  })
-  .then((_) => sendResStatus(res, 201, "Record updated"))
-  .then((_) => sendResStatus(res, 500));
+
+  User.findOne({ where: body }).then((user) => {
+    if (user) return sendResStatus(res, 403);
+
+    User.update(body, {
+      where: { id },
+    })
+      .then((_) => sendResStatus(res, 201, "Record updated"))
+      .then((_) => sendResStatus(res, 500));
+  });
 };
 
 exports.index = (req, res) => {

@@ -60,6 +60,10 @@ const News = sequelize.define("news", {
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  date: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   img: {
     type: DataTypes.STRING,
   },
@@ -89,5 +93,7 @@ const Event = sequelize.define("events", {
 });
 
 User.belongsTo(Role , {foreignKey: "roleId"})
+News.belongsTo(User , {foreignKey: "authorId"})
+Event.belongsTo(User , {foreignKey: "authorId"})
 
 module.exports = { sequelize, Role, User, News, Event };
