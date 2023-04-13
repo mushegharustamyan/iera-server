@@ -60,6 +60,10 @@ const News = sequelize.define("news", {
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  date: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   img: {
     type: DataTypes.STRING,
   },

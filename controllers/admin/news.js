@@ -21,12 +21,12 @@ exports.index = (req, res) => {
       startDate && endDate
         ? {
             [Op.and]: [
-              { createdAt: { [Op.gte]: startDate } },
-              { createdAt: { [Op.lte]: endDate } },
+              { date: { [Op.gte]: startDate } },
+              { date: { [Op.lte]: endDate } },
             ],
           }
-        : { createdAt: { [Op.eq]: startDate ?? endDate } }
-    
+        : { date: { [Op.lte]: startDate ?? endDate } }
+      
         console.log(filter)
 
     return News.findAll({ where: filter }, { order: [["createdAt", selectedOrder]] })
@@ -53,13 +53,14 @@ exports.delete = (req, res) => {
 
 exports.update = (req, res) => {
   const { id } = req.params;
-  const { title, description, img, authorId } = req.body;
+  const { title, description, img,date } = req.body;
   const {token} = req.headers;
 
   const body = removeNullOrUndefined({
     title,
     description,
     img,
+    date,
     authorId: jwt_decode(token).id,
   });
 
@@ -69,13 +70,14 @@ exports.update = (req, res) => {
 };
 
 exports.create = (req, res) => {
-  const { title, description, img } = req.body;
+  const { title, description, img ,date} = req.body;
   const {token} = req.headers;
 
   News.create({
     title,
     description,
     img,
+    date,
     authorId: jwt_decode(token).id
   })
     .then((_) => sendResStatus(res, 201))

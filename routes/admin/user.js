@@ -2,13 +2,10 @@ const { check } = require("express-validator");
 const express = require("express");
 const router = express.Router();
 
+// const verifyCreate = require("../../"s)
 const verifyAdmin = require("../auth");
 const adminUserController = require("../../controllers/admin/user");
-const {
-  verifyCreate,
-  verifyUser,
-  verifyIsNotAdmin,
-} = require("../../middlewares/admin/user");
+const { verifyCreate, verifyUser } = require("../../middlewares/admin/user");
 
 router.post(
   "/",
@@ -27,14 +24,10 @@ router.post(
       .isLength({ min: 8 })
       .withMessage("Password must be at least 8 charachters"),
   ],
-  [verifyAdmin, verifyCreate],
+  [verifyCreate],
   adminUserController.create
 );
-router.delete(
-  "/:id",
-  [verifyAdmin, verifyUser, verifyIsNotAdmin],
-  adminUserController.delete
-);
+router.delete("/:id", [verifyUser], adminUserController.delete);
 router.put(
   "/:id",
   [
@@ -57,10 +50,10 @@ router.put(
       .isLength({ min: 8 })
       .withMessage("Password must be at least 8 characters"),
   ],
-  [verifyAdmin, verifyUser ],
+  [verifyUser],
   adminUserController.update
 );
-router.get("/", verifyAdmin, adminUserController.index);
-router.get("/:id", [verifyAdmin, verifyUser], adminUserController.show);
+router.get("/", adminUserController.index);
+router.get("/:id", [verifyUser], adminUserController.show);
 
 module.exports = router;

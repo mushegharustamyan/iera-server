@@ -6,7 +6,6 @@ const { sendResStatus, sendResBody } = require("../../utils/helpers");
 
 exports.create = async (req, res) => {
   const { name, password, login, roleId } = req.body;
-
   const hashedPwd = await bcrypt.hash(password, 8);
 
   User.create({
@@ -16,7 +15,7 @@ exports.create = async (req, res) => {
     roleId,
   })
     .then((_) => sendResStatus(res, 201, "User Created"))
-    .catch((_) => sendResStatus(res, 500));
+    .catch((e) => sendResStatus(res, 500,));
 };
 
 exports.delete = (req, res) => {

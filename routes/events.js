@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const adminEventsController = require("../../controllers/admin/events");
-const { verifyPost, verifyCreate } = require("../../middlewares/admin/events");
+const adminEventsController = require("../controllers/events")();
+const { verifyPost, verifyCreate } = require("../middlewares/admin/events");
 
 router.get("/", adminEventsController.index)
 router.get("/:id",verifyPost, adminEventsController.show)
