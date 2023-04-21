@@ -27,8 +27,6 @@ const newsController = () => {
             }
           : { date: { [Op.lte]: startDate ?? endDate } };
 
-      console.log(filter);
-
       return News.findAll(
         { where: filter },
         { order: [["createdAt", selectedOrder]] }
