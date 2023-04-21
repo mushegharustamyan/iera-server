@@ -64,36 +64,30 @@ const News = sequelize.define("news", {
     type: DataTypes.STRING,
     allowNull: false
   },
+  categorie: {
+    type: DataTypes.ENUM(["news" , "events"]),
+    allowNull: false
+  },
+  status: {
+    type: DataTypes.ENUM(["approved" , "rejected" , "pending"])
+  },
   img: {
     type: DataTypes.STRING,
   },
 });
 
-const Event = sequelize.define("events", {
+const Request = sequelize.define("requests" , {
   id: {
-    type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true,
+    type: DataTypes.INTEGER,
+    autoIncrement: true
   },
   title: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-  },
-  description: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  date: {
     type: DataTypes.STRING,
-    allowNull: false,
-  },
-  img: {
-    type: DataTypes.STRING,
-  },
-});
+    allowNull: false
+  }
+})
 
 User.belongsTo(Role , {foreignKey: "roleId"})
 News.belongsTo(User , {foreignKey: "authorId"})
-Event.belongsTo(User , {foreignKey: "authorId"})
-
-module.exports = { sequelize, Role, User, News, Event };
+module.exports = { sequelize, Role, User, News, Request };
