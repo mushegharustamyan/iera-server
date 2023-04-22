@@ -32,7 +32,7 @@ const newsController = () => {
         { order: [["createdAt", selectedOrder]] }
       )
         .then((result) => sendResBody(res, 200, result))
-        .catch((_) => sendResStatus(res, 500));
+        .catch((e) => sendResBody(res, 500,e));
     }
   };
 

@@ -1,5 +1,9 @@
-const { News , Request} = require("../../db/sequelize");
-const { sendResStatus , sendResBody} = require("../../utils/helpers");
+const { News, Request } = require("../../db/sequelize");
+const {
+  sendResStatus,
+  sendResBody,
+  removeNullOrUndefined,
+} = require("../../utils/helpers");
 
 exports.create = (req, res) => {
   const { title, description, img, date } = req.body;
@@ -11,17 +15,17 @@ exports.create = (req, res) => {
     img,
     date,
     authorId: jwt_decode(token).id,
+    status: "pending",
   })
     .then((_) => {
-      Request.create({title})
-      .then(() => sendResStatus(res , 201))
+      Request.create({ title }).then(() => sendResStatus(res, 201));
     })
     .catch((_) => sendResStatus(res, 500));
 };
 
 exports.index = () => {
-  const { token } = req.headers
-  const authorId = jwt_decode(token).id
+  const { token } = req.headers;
+  const authorId = jwt_decode(token).id;
 
   const { startDate, endDate } = req.body;
   const { order } = req.params;
@@ -45,20 +49,42 @@ exports.index = () => {
         : { date: { [Op.lte]: startDate ?? endDate } };
 
     return News.findAll(
-      { where: filter , authorId},
+      { where: filter, authorId },
       { order: [["createdAt", selectedOrder]] }
     )
       .then((result) => sendResBody(res, 200, result))
       .catch((_) => sendResStatus(res, 500));
   }
-}
+};
 
-exports.show = (req , res) => {
-  const { token } = req.headers
-  const { id } = req.params
-  const authorId = jwt_decode(token).id
+exports.show = (req, res) => {
+  const { token } = req.headers;
+  const { id } = req.params;
+  const authorId = jwt_decode(token).id;
 
-  News.findOne({where: {id , authorId}})
-  .then((result) => sendResBody(res , 200 , result))
-  .catch((_) => sendResStatus(res , 500))
-}
+  News.findOne({ where: { id, authorId } })
+    .then((result) => sendResBody(res, 200, result))
+    .catch((_) => sendResStatus(res, 500));
+};
+
+exports.update = (req, res) => {
+  const { id } = req.params;
+  const { title, description, categorie } = req.body;
+  const body = removeNullOrUndefined(title, description, categorie);
+
+  News.update(body, { where: { id } })
+    .then((_) => sendResStatus(res, 201, "Post Updated"))
+    .catch((_) => sendResStatus(res, 500));
+};
+
+exports.delete = (req, res) => {
+  const { id } = req.params;
+
+  News.destroy({
+    where: {
+      id,
+    },
+  })
+    .then((_) => sendResStatus(res, 204))
+    .cancel((_) => sendResStatus(res, 500));
+};

@@ -2,6 +2,7 @@
 const AuthRouter = require('../routes/auth')
 const adminUserRouter = require("../routes/admin/user")
 const adminNewsRouter = require("../routes/news")
+const partnerNewsRouter = require("../routes/partner/news")
 
 const modearatorNewsRouter = require("../routes/news")
 
@@ -18,4 +19,8 @@ exports.ConfigRouter = (app) => {
     // Moderator
 
     app.use("/moderator/news", verifyModerator,modearatorNewsRouter)
+
+    // Partner
+
+    app.use("/partner/news",verifyPartner ,partnerNewsRouter)
 }
