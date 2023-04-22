@@ -3,7 +3,7 @@ const router = express.Router();
 
 const newsController = require("../controllers/news")()
 
-const {verifyPost, verifyCreate} = require("../middlewares/admin/news")
+const {verifyPost, verifyCreate} = require("../middlewares/news")
 
 router.get("/" , newsController.index)
 router.get("/:id", verifyPost , newsController.show)
