@@ -64,8 +64,34 @@ const News = sequelize.define("news", {
     type: DataTypes.STRING,
     allowNull: false
   },
-  categorie: {
-    type: DataTypes.ENUM(["news" , "events"]),
+  status: {
+    type: DataTypes.ENUM(["approved" , "rejected" , "pending"])
+  },
+  img: {
+    type: DataTypes.STRING,
+  },
+});
+
+const Event = sequelize.define("events", {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  title: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  startDate: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  endDate: {
+    type: DataTypes.STRING,
     allowNull: false
   },
   status: {
@@ -90,4 +116,5 @@ const Request = sequelize.define("requests" , {
 
 User.belongsTo(Role , {foreignKey: "roleId"})
 News.belongsTo(User , {foreignKey: "authorId"})
-module.exports = { sequelize, Role, User, News, Request };
+Event.belongsTo(User , {foreignKey: "authorId"})
+module.exports = { sequelize, Role, User, News, Request , Event};

@@ -1,10 +1,10 @@
-const { News } = require("../../db/sequelize");
-const { sendResStatus } = require("../../utils/helpers");
+const { Event } = require("../db/sequelize");
+const { sendResStatus } = require("../utils/helpers");
 
 exports.verifyPost = (req, res, next) => {
   const { id } = req.params;
 
-  News.findByPk(id).then((post) => {
+  Event.findByPk(id).then((post) => {
     if (!post) return sendResStatus(res, 404);
 
     next();
@@ -12,10 +12,10 @@ exports.verifyPost = (req, res, next) => {
 };
 
 exports.verifyCreate = (req, res, next) => {
-  const { title, description, img } = req.body;
+  const { title, description , startDate , endDate} = req.body;
 
-  if (!title || !description || !img) return sendResStatus(res, 409);
-  News.findOne({
+  if (!title || !description || startDate || endDate) return sendResStatus(res, 409);
+  Event.findOne({
     where: {
       title,
     },
