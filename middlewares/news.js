@@ -12,9 +12,9 @@ exports.verifyPost = (req, res, next) => {
 };
 
 exports.verifyCreate = (req, res, next) => {
-  const { title, description, img } = req.body;
+  const { title, description, img , date} = req.body;
 
-  if (!title || !description || !img) return sendResStatus(res, 409);
+  if (!title || !description || !img || !date) return sendResStatus(res, 409);
   News.findOne({
     where: {
       title,

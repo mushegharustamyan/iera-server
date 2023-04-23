@@ -94,6 +94,10 @@ const Event = sequelize.define("events", {
     type: DataTypes.STRING,
     allowNull: false
   },
+  date: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   status: {
     type: DataTypes.ENUM(["approved" , "rejected" , "pending"])
   },
