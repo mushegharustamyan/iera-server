@@ -80,6 +80,7 @@ const newsController = () => {
       img,
       date,
       authorId: jwt_decode(token).id,
+      status: "approved"
     })
       .then((_) => sendResStatus(res, 201))
       .catch((_) => sendResStatus(res, 500));

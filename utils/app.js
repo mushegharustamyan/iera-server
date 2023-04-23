@@ -10,6 +10,8 @@ const partnerEventRouter = require("../routes/partner/event")
 const modearatorNewsRouter = require("../routes/news")
 const modearatorEventRouter = require("../routes/event")
 
+const postRouter = require("../routes/post")
+
 exports.ConfigRouter = (app) => {
     const { verifyAdmin,verifyModerator,verifyPartner } = require('../middlewares/verifications')
     
@@ -33,4 +35,8 @@ exports.ConfigRouter = (app) => {
     app.use("/partner/news",verifyPartner ,partnerNewsRouter)
 
     app.use("/partner/event",verifyPartner,partnerEventRouter)
+
+    //publick
+
+    app.use("/post", postRouter)
 }
