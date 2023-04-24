@@ -115,6 +115,9 @@ const Request = sequelize.define("requests" , {
   title: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  reason: {
+    type: DataTypes.STRING
   }
 })
 

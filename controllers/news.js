@@ -86,12 +86,35 @@ const newsController = () => {
       .catch((_) => sendResStatus(res, 500));
   };
 
+  const approve = (req , res) => {
+    const { id } = req.params
+
+    News.update({status: "approved"} , {where: {id}})
+    .then(_ => sendResStatus(res, 203))
+    .catch(_ => sendResStatus(res, 500))
+  }
+
+  const decline = (req , res) => {
+    const { id } = req.params
+    const { requestId } = req.query
+    const { reason } = req.body
+
+    News.update({status: "rejected"} , {where: {id}})
+    .then(_ => {
+      Request.update({reason} , {where : {id: +requestId}})
+      .then((_ => sendResStatus(res , 200)))
+    })
+    .catch(_ => sendResStatus(res, 500))
+  }
+
   return {
     index,
     show,
     delete: deleteNews,
     update,
     create,
+    approve,
+    decline
   }
 };
 
