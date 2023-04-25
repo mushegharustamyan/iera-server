@@ -1,6 +1,6 @@
 const { Event } = require("../db/sequelize");
 const jwt_decode = require("jwt-decode");
-const {Op} = require("sequelize")
+const {Op, where} = require("sequelize")
 const {
   sendResStatus,
   sendResBody,
@@ -94,12 +94,35 @@ const eventControllers = () => {
       .catch((_) => sendResStatus(res, 500));
   };
 
+  const approve = (req , res) => {
+    const { id } = req.params
+
+    Event.update({status: "approved"} , {where: {id}})
+    .then(_ => sendResStatus(res, 203))
+    .catch(_ => sendResStatus(res, 500))
+  }
+
+  const decline = (req , res) => {
+    const { id } = req.params
+    const { requestId } = req.query
+    const { reason } = req.body
+
+    Event.update({status: "rejected"} , {where: {id}})
+    .then(_ => {
+      Request.update({reason} , {where : {id: requestId}})
+      .then((_ => sendResStatus(res , 200)))
+    })
+    .catch(_ => sendResStatus(res, 500))
+  }
+
   return {
     create,
     index,
     show,
     update,
     delete: deleteEvent,
+    approve,
+    decline
   };
 };
 

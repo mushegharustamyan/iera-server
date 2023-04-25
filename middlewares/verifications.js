@@ -62,3 +62,19 @@ exports.verifyPartner = (req, res, next) => {
     });
   });
 };
+
+exports.verifyDecline = (req , res , next) => {
+  const { requestId } = req.query
+
+  const { reason } = req.body
+
+  if(!requestId || !reason) return sendResStatus(res , 403)
+
+  Request.findByPk(+requestId)
+  .then((request) => {
+    if(!request) return sendResStatus(res , 404)
+
+    next()
+  })
+  .catch(_ => sendResStatus(res , 500))
+}
