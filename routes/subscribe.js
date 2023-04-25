@@ -1,20 +1,22 @@
-const { transporter, sendResStatus } = require("../utils/helpers");
+const { transporter, sendResStatus, sendResBody } = require("../utils/helpers");
 const express = require("express");
 const router = express.Router();
-const session = require('express-session');
+const session = require("express-session");
 
-router.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-}));
+router.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 function generateCaptcha() {
   const captcha = Math.random().toString(36).substr(2, 5);
   return captcha;
 }
 
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
   req.session.captcha = generateCaptcha();
   res.json({ captcha: req.session.captcha });
 });
@@ -26,7 +28,7 @@ router.post("/", (req, res) => {
   const captcha = req.session.captcha;
 
   if (!captcha || captcha !== userCaptcha) {
-    res.status(400).json({ error: 'Invalid CAPTCHA' });
+    sendResBody(res, 400, "invalid Captcha");
   } else {
     const message = `from - ${options.email} ${options.text}`;
 
@@ -36,13 +38,12 @@ router.post("/", (req, res) => {
         to: process.env.EMAIL_LOGIN,
         subject: `${options.name} ${options.surname}`,
         text: message,
-        
       })
       .then((_) => {
         delete req.session.captcha;
         sendResStatus(res, 201, "Email Sent");
       })
-      .catch((e) => res.send("Something went wrong"));
+      .catch((e) => sendResStatus(res, 400, "Something went wrong"));
   }
 });
 
