@@ -3,7 +3,7 @@ const router = express.Router();
 
 const postController = require("../controllers/posts")
 
-
+router.get("/f",postController.filter)
 router.get("/q", postController.show)
 router.get("/" , postController.index)
 

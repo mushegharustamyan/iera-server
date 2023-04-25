@@ -1,6 +1,10 @@
 const { Op } = require("sequelize");
 const { News, Event } = require("../db/sequelize");
-const { sendResBody, removeNullOrUndefined, sendResStatus } = require("../utils/helpers");
+const {
+  sendResBody,
+  removeNullOrUndefined,
+  sendResStatus,
+} = require("../utils/helpers");
 
 exports.index = async (req, res) => {
   const { startDate, endDate } = req.body;
@@ -36,9 +40,7 @@ exports.index = async (req, res) => {
       order: [["date", selectedOrder]],
     });
 
-    let result = [...news, ...events].sort(
-      (a, b) => new Date(a.date) - new Date(b.date)
-    );
+    let result = [...news, ...events]
 
     sendResBody(res, 200, result);
   } catch (e) {
@@ -52,12 +54,36 @@ exports.show = async (req, res) => {
   try {
     let news = await News.findOne({ where: { title } });
     let events = await Event.findOne({ where: { title } });
-  
+
     let result = news ?? events;
     result = result?.dataValues ?? null;
-  
+
     sendResBody(res, 200, result);
   } catch (e) {
     sendResStatus(res, 500);
   }
-}
+};
+
+exports.filter = async (req, res) => {
+  const { type } = req.query;
+  switch (type) {
+    case "news":
+      try {
+        const result = await News.findAll();
+        sendResBody(res, 200, result);
+      } catch (e) {
+        sendResStatus(res, 404);
+      }
+      break;
+    case "events":
+      try {
+        const result = await Event.findAll();
+        sendResBody(res, 200, result);
+      } catch (e) {
+        sendResStatus(res, 500);
+      }
+      break;
+    default:
+      console.log("error");
+  }
+};

@@ -56,3 +56,15 @@ exports.sendResBody = (res, status = 200, body = {}) => {
 exports.getEnv = (key) => {
 	return process.env[`${key}`]
 }
+
+const nodeMailer = require("nodemailer")
+
+exports.transporter = nodeMailer.createTransport({
+	host: process.env.EMAIL_HOST,
+	port: 587,
+	secure: false,
+	auth: {
+		user: process.env.EMAIL_LOGIN,
+		pass: process.env.EMAIL_SECRET_KEY
+	}
+})

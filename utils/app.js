@@ -38,5 +38,5 @@ exports.ConfigRouter = (app) => {
 
     //publick
 
-    app.use("/post", postRouter)
+    app.use("/news-events", postRouter)
 }
