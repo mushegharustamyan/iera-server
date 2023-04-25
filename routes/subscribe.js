@@ -1,27 +1,49 @@
-const svgCaptcha = require("svg-captcha");
 const { transporter, sendResStatus } = require("../utils/helpers");
 const express = require("express");
 const router = express.Router();
+const session = require('express-session');
 
-router.post("/subscribe", (req, res) => {
-  const options = req.body;
+router.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+}));
 
-  // Generate a CAPTCHA
-  const captcha = svgCaptcha.create();
+function generateCaptcha() {
+  const captcha = Math.random().toString(36).substr(2, 5);
+  return captcha;
+}
 
-  transporter
-    .sendMail({
-      from: process.env.EMAIL_LOGIN,
-      to: process.env.EMAIL_LOGIN,
-      subject: `${options.name} ${options.surname}`,
-      text: ` From - ${options.name}: \n\n ${options.text}`,
-      html: `
-          <p>Please complete the CAPTCHA below:</p>
-          <img src="data:image/svg+xml;base64,${captcha.data}" alt="CAPTCHA">
-          <br>
-          <input type="text" name="captcha" placeholder="Enter CAPTCHA">
-        `,
-    })
-    .then((_) => sendResStatus(res, 201, "Email Sent"))
-    .catch((e) => sendResStatus(res,400,"Something went wrong"));
+router.get('/', (req, res) => {
+  req.session.captcha = generateCaptcha();
+  res.json({ captcha: req.session.captcha });
 });
+
+router.post("/", (req, res) => {
+  const options = req.body;
+  const userCaptcha = req.body.captcha;
+
+  const captcha = req.session.captcha;
+
+  if (!captcha || captcha !== userCaptcha) {
+    res.status(400).json({ error: 'Invalid CAPTCHA' });
+  } else {
+    const message = `from - ${options.email} ${options.text}`;
+
+    transporter
+      .sendMail({
+        from: process.env.EMAIL_LOGIN,
+        to: process.env.EMAIL_LOGIN,
+        subject: `${options.name} ${options.surname}`,
+        text: message,
+        
+      })
+      .then((_) => {
+        delete req.session.captcha;
+        sendResStatus(res, 201, "Email Sent");
+      })
+      .catch((e) => res.send("Something went wrong"));
+  }
+});
+
+module.exports = router;
