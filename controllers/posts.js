@@ -18,8 +18,8 @@ exports.index = async (req, res) => {
       where: {
         date: {
           [Op.between]: [
-            startDate ? startDate : "01-01-1900",
-            endDate ? endDate : "9999-12-31",
+            startDate ? startDate : "01/01/1900",
+            endDate ? endDate : "9999/12/31",
           ],
         },
         status: "approved",
@@ -31,8 +31,8 @@ exports.index = async (req, res) => {
       where: {
         date: {
           [Op.between]: [
-            startDate ?? "01-01-1900",
-            endDate ? endDate : "9999-12-31",
+            startDate ?? "01/01/1900",
+            endDate ? endDate : "9999/12/31",
           ],
         },
         status: "approved",
