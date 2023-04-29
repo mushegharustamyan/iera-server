@@ -18,7 +18,7 @@ exports.signin = (req,res) => {
             const token = jwt.sign({id : user.id}, getEnv("JWT_SECRET"), {
                 expiresIn: 80000
             })
-            const roleid = user.roleId
+            const roleId = user.roleId
 
             return res.send({token,roleid})
         })
