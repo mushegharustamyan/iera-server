@@ -20,7 +20,7 @@ exports.signin = (req,res) => {
             })
             const roleId = user.roleId
 
-            return res.send({token,roleid})
+            return res.send({token,roleId})
         })
         .catch(_ => sendResBody(res, 500,))
 }
