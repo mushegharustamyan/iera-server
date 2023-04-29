@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
+const uniqid = require('uniqid');
 
 const sequelize = new Sequelize("iera", "root", "root", {
   port: 3306,
@@ -48,9 +49,9 @@ const User = sequelize.define("user", {
 
 const News = sequelize.define("news", {
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING(36),
     primaryKey: true,
-    autoIncrement: true,
+    allowNull: false
   },
   title: {
     type: DataTypes.STRING(255),
@@ -70,16 +71,25 @@ const News = sequelize.define("news", {
   img: {
     type: DataTypes.STRING,
   },
+  type: {
+    type: DataTypes.STRING
+  }
+}, {
+  hooks: {
+    beforeValidate: (news, options) => {
+      news.id = uniqid(); // generate a unique ID for each record
+    }
+  }
 });
 
 const Event = sequelize.define("events", {
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING(36),
     primaryKey: true,
-    autoIncrement: true,
+    allowNull: false
   },
   title: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   description: {
@@ -104,6 +114,15 @@ const Event = sequelize.define("events", {
   img: {
     type: DataTypes.STRING,
   },
+  type: {
+    type: DataTypes.STRING
+  }
+}, {
+  hooks: {
+    beforeValidate: (event, options) => {
+      event.id = uniqid(); 
+    }
+  }
 });
 
 const Request = sequelize.define("requests" , {

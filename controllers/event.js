@@ -21,7 +21,8 @@ const eventControllers = () => {
         endDate,
         authorId: jwt_decode(token).id,
         status: "approved",
-        date
+        date,
+        type: "event"
       },
       
     )
@@ -55,7 +56,6 @@ const eventControllers = () => {
   };
 
   const index = (req, res) => {
-    // ISO 8601 date format
     const { startDate, endDate } = req.body;
     const { order } = req.params;
 

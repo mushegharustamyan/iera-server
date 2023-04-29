@@ -40,7 +40,7 @@ exports.index = async (req, res) => {
       order: [["date", selectedOrder]],
     });
 
-    let result = [...news, ...events]
+    let result = [...news, ...events];
 
     sendResBody(res, 200, result);
   } catch (e) {
@@ -49,12 +49,11 @@ exports.index = async (req, res) => {
 };
 
 exports.show = async (req, res) => {
-  const { title } = req.query;
+  const { id } = req.params;
 
   try {
-    let news = await News.findOne({ where: { title } });
-    let events = await Event.findOne({ where: { title } });
-
+    let news = await News.findByPk(id);
+    let events = await Event.findByPk(id);
     let result = news ?? events;
     result = result?.dataValues ?? null;
 

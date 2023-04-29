@@ -32,7 +32,7 @@ const newsController = () => {
         { order: [["createdAt", selectedOrder]] }
       )
         .then((result) => sendResBody(res, 200, result))
-        .catch((e) => sendResBody(res, 500,e));
+        .catch((e) => sendResBody(res, 500, e));
     }
   };
 
@@ -64,7 +64,6 @@ const newsController = () => {
       date,
       authorId: jwt_decode(token).id,
     });
-
     News.update(body, { where: { id } })
       .then((_) => sendResStatus(res, 201, "Record Updated"))
       .catch((_) => sendResStatus(res, 500));
@@ -80,32 +79,36 @@ const newsController = () => {
       img,
       date,
       authorId: jwt_decode(token).id,
-      status: "approved"
+      status: "approved",
+      type: "news",
     })
       .then((_) => sendResStatus(res, 201))
+      .catch((e) => {
+        console.log(e), sendResStatus(res, 500);
+      });
+  };
+
+  const approve = (req, res) => {
+    const { id } = req.params;
+
+    News.update({ status: "approved" }, { where: { id } })
+      .then((_) => sendResStatus(res, 203))
       .catch((_) => sendResStatus(res, 500));
   };
 
-  const approve = (req , res) => {
-    const { id } = req.params
+  const decline = (req, res) => {
+    const { id } = req.params;
+    const { requestId } = req.query;
+    const { reason } = req.body;
 
-    News.update({status: "approved"} , {where: {id}})
-    .then(_ => sendResStatus(res, 203))
-    .catch(_ => sendResStatus(res, 500))
-  }
-
-  const decline = (req , res) => {
-    const { id } = req.params
-    const { requestId } = req.query
-    const { reason } = req.body
-
-    News.update({status: "rejected"} , {where: {id}})
-    .then(_ => {
-      Request.update({reason} , {where : {id: +requestId}})
-      .then((_ => sendResStatus(res , 200)))
-    })
-    .catch(_ => sendResStatus(res, 500))
-  }
+    News.update({ status: "rejected" }, { where: { id } })
+      .then((_) => {
+        Request.update({ reason }, { where: { id: +requestId } }).then((_) =>
+          sendResStatus(res, 200)
+        );
+      })
+      .catch((_) => sendResStatus(res, 500));
+  };
 
   return {
     index,
@@ -114,8 +117,8 @@ const newsController = () => {
     update,
     create,
     approve,
-    decline
-  }
+    decline,
+  };
 };
 
-module.exports = newsController
+module.exports = newsController;
