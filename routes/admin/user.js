@@ -2,8 +2,6 @@ const { check } = require("express-validator");
 const express = require("express");
 const router = express.Router();
 
-// const verifyCreate = require("../../"s)
-const verifyAdmin = require("../auth");
 const adminUserController = require("../../controllers/admin/user");
 const { verifyCreate, verifyUser } = require("../../middlewares/admin/user");
 
@@ -28,7 +26,7 @@ router.post(
   adminUserController.create
 );
 router.delete("/:id", [verifyUser], adminUserController.delete);
-router.put(
+router.patch(
   "/:id",
   [
     check("name")

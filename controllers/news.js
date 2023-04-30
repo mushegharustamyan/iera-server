@@ -3,6 +3,9 @@ const { removeNullOrUndefined } = require("../utils/helpers");
 const { sendResStatus, sendResBody } = require("../utils/helpers");
 const { Op } = require("sequelize");
 const jwt_decode = require("jwt-decode");
+const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+
+const { s3 } = require("../utils/helpers");
 
 const newsController = () => {
   const index = (req, res) => {
@@ -44,48 +47,104 @@ const newsController = () => {
       .catch((_) => sendResStatus(res, 500));
   };
 
-  const deleteNews = (req, res) => {
+  const deleteNews = async (req, res) => {
     const { id } = req.params;
 
-    News.destroy({ where: { id } })
-      .then((_) => sendResStatus(res, 204))
-      .catch((_) => sendResStatus(res, 500));
+    try {
+      const news = await News.findOne({ where: { id } });
+      if (!news) {
+        return sendResStatus(res, 404);
+      }
+
+      const imageUrl = news.img;
+
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: imageUrl.split("/").pop(),
+      };
+      await s3.send(new DeleteObjectCommand(params));
+
+      await News.destroy({ where: { id } });
+
+      return sendResStatus(res, 204);
+    } catch (error) {
+      console.error(error);
+      return sendResStatus(res, 500);
+    }
   };
 
-  const update = (req, res) => {
+  const update = async (req, res) => {
     const { id } = req.params;
-    const { title, description, img, date } = req.body;
-    const { token } = req.headers;
+    const { title, description, date } = req.body;
+    const file = req.file;
 
-    const body = removeNullOrUndefined({
-      title,
-      description,
-      img,
-      date,
-      authorId: jwt_decode(token).id,
-    });
-    News.update(body, { where: { id } })
-      .then((_) => sendResStatus(res, 201, "Record Updated"))
-      .catch((_) => sendResStatus(res, 500));
-  };
+    try {
+      const news = await News.findOne({ where: { id } });
+      if (!news) {
+        return sendResStatus(res, 404);
+      }
 
-  const create = (req, res) => {
-    const { title, description, img, date } = req.body;
-    const { token } = req.headers;
+      const imageUrl = news.img;
 
-    News.create({
-      title,
-      description,
-      img,
-      date,
-      authorId: jwt_decode(token).id,
-      status: "approved",
-      type: "news",
-    })
-      .then((_) => sendResStatus(res, 201))
-      .catch((e) => {
-        console.log(e), sendResStatus(res, 500);
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: imageUrl.split("/").pop(),
+      };
+      await s3.send(new DeleteObjectCommand(params));
+
+      const newKey = `${Date.now()}_${file.originalname}`;
+      const newParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: newKey,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+      const newData = await s3.upload(newParams).promise();
+
+      const body = removeNullOrUndefined({
+        title,
+        description,
+        img: newData.Location,
+        date,
+        
       });
+      await News.update(body, { where: { id } });
+
+      return sendResStatus(res, 200, "Record updated");
+    } catch (error) {
+      console.error(error);
+      return sendResStatus(res, 500);
+    }
+  };
+
+  const create = async (req, res) => {
+    const { title, description, date } = req.body;
+    const { token } = req.headers;
+    const file = req.file;
+
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: file.originalname,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    try {
+      const { Location } = await s3.send(new PutObjectCommand(params));
+      const news = await News.create({
+        title,
+        description,
+        img: Location,
+        date,
+        authorId: jwt_decode(token.id),
+        status: "approved",
+        type: "news",
+      });
+      sendResStatus(res, 201);
+    } catch (error) {
+      console.error(error);
+      sendResStatus(res, 500);
+    }
   };
 
   const approve = (req, res) => {

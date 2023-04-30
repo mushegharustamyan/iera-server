@@ -13,7 +13,6 @@ app.use(express.json());
 ConfigRouter(app)
 
 const port = process.env.PORT;
-
 app.listen(port, () => {
   console.log(`app listen [+] ${port}`);
   connectionInit().then((_) => 

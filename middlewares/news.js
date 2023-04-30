@@ -12,14 +12,15 @@ exports.verifyPost = (req, res, next) => {
 };
 
 exports.verifyCreate = (req, res, next) => {
-  const { title, description, img , date} = req.body;
+  const { title, description, date} = req.body;
 
-  if (!title || !description || !img || !date) return sendResStatus(res, 409);
+  if (!title || !description  || !date) return sendResStatus(res, 409);
   News.findOne({
     where: {
       title,
     },
   }).then((news) => {
+    console.log(title,description)
     if (news) return sendResStatus(res, 409);
     next();
   });

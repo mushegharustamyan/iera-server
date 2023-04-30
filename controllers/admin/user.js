@@ -26,15 +26,15 @@ exports.delete = (req, res) => {
     .catch((_) => sendResStatus(res, 500));
 };
 
-exports.update = (req, res) => {
+exports.update = async(req, res) => {
   const { id } = req.params;
   const { name, password, login, roleId } = req.body;
-
+  const hashedPwd = await bcrypt.hash(password, 8);  
   const body = removeNullOrUndefined({
     name,
     password,
     login,
-    password,
+    password: hashedPwd,
     roleId,
   });
 
