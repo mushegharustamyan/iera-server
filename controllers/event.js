@@ -51,7 +51,7 @@ const eventControllers = () => {
       if (!event) {
         return sendResStatus(res, 404);
       }
-      const imageUrl = news.img;
+      const imageUrl = event.img;
 
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
@@ -59,9 +59,10 @@ const eventControllers = () => {
       };
       await s3.send(new DeleteObjectCommand(params));
 
-      await Event.delete({ where: { id } });
+      await Event.destroy({ where: { id } });
       return sendResStatus(res, 204);
     } catch (error) {
+      console.log(error)
       return sendResStatus(res, 500);
     }
   };
