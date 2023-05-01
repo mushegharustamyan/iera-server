@@ -12,9 +12,9 @@ exports.verifyPost = (req, res, next) => {
 };
 
 exports.verifyCreate = (req, res, next) => {
-  const { title, description , startDate , endDate , date} = req.body;
+  const { title, description} = req.body;
 
-  if (!title || !description || !startDate || !endDate , !date) return sendResStatus(res, 409);
+  if (!title || !description ) return sendResStatus(res, 409);
   Event.findOne({
     where: {
       title,
