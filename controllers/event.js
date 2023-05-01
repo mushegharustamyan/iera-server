@@ -1,5 +1,5 @@
 const { Event } = require("../db/sequelize");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 const { Op, where } = require("sequelize");
 const {
   sendResStatus,
@@ -16,6 +16,10 @@ const eventControllers = () => {
     const file = req.file;
     const { token } = req.headers;
 
+    const formatDate = new Date(date);
+    const formatStartDate = new Date(startDate);
+    const formaEndDate = new Date(endDate);
+
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: file.originalname,
@@ -28,14 +32,27 @@ const eventControllers = () => {
       const news = await Event.create({
         title,
         description,
-        startDate,
-        endDate,
+        startDate: formatStartDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+        endDate: formaEndDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
         authorId: jwt.decode(token).id,
         status: "approved",
-        date,
+        date: formatDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
         type: "event",
-        img: location
+        img: location,
       });
+
       sendResStatus(res, 201);
     } catch (error) {
       console.error(error);
@@ -62,7 +79,7 @@ const eventControllers = () => {
       await Event.destroy({ where: { id } });
       return sendResStatus(res, 204);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return sendResStatus(res, 500);
     }
   };
@@ -71,6 +88,9 @@ const eventControllers = () => {
     const { id } = req.params;
     const { title, description, startDate, endDate } = req.body;
     const file = req.file;
+
+    const formatStartDate = new Date(startDate);
+    const formaEndDate = new Date(endDate);
 
     try {
       const event = await Event.findOne({ where: { id } });
@@ -99,8 +119,16 @@ const eventControllers = () => {
         title,
         description,
         img: location,
-        startDate,
-        endDate,
+        startDate: formatStartDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+        endDate: formaEndDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
       });
 
       await Event.update(body, { where: { id } });
@@ -111,34 +139,9 @@ const eventControllers = () => {
   };
 
   const index = (req, res) => {
-    const { startDate, endDate } = req.body;
-    const { order } = req.params;
-
-    const validOrder = ["DESC, ASC"];
-    const selectedOrder = validOrder.includes(order) ? order : "ASC";
-
-    if (!startDate && !endDate) {
-      return Event.findAll({ order: [["createdAt", selectedOrder]] })
-        .then((result) => sendResBody(res, 200, result))
-        .catch((_) => sendResStatus(res, 500));
-    } else {
-      const filter =
-        startDate && endDate
-          ? {
-              [Op.and]: [
-                { startDate: { [Op.gte]: startDate } },
-                { endDate: { [Op.lte]: endDate } },
-              ],
-            }
-          : { date: { [Op.lte]: startDate ?? endDate } };
-
-      return Event.findAll(
-        { where: filter },
-        { order: [["createdAt", selectedOrder]] }
-      )
-        .then((result) => sendResBody(res, 200, result))
-        .catch((_) => sendResStatus(res, 500));
-    }
+    Event.findAll()
+      .then((result) => sendResBody(res, 200, result))
+      .catch((_) => sendResStatus(res, 500));
   };
 
   const show = (req, res) => {

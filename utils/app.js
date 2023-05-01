@@ -3,6 +3,10 @@ const AuthRouter = require('../routes/auth')
 const adminUserRouter = require("../routes/admin/user")
 const adminNewsRouter = require("../routes/news")
 const adminEventRouter = require("../routes/event")
+const requestRouter = require("../routes/request")
+const subscribeRouter = require("../routes/subscribe")
+const contactUsRouter = require("../routes/contactUs")
+
 
 const partnerNewsRouter = require("../routes/partner/news")
 const partnerEventRouter = require("../routes/partner/event")
@@ -12,7 +16,6 @@ const modearatorEventRouter = require("../routes/event")
 
 const postRouter = require("../routes/post")
 
-const subscribeRouter = require("../routes/subscribe")
 
 exports.ConfigRouter = (app) => {
     const { verifyAdmin,verifyModerator,verifyPartner } = require('../middlewares/verifications')
@@ -24,7 +27,9 @@ exports.ConfigRouter = (app) => {
 
     app.use("/admin/news", verifyAdmin , adminNewsRouter)
 
-    app.use("/admin/event" , verifyAdmin , adminEventRouter) 
+    app.use("/admin/event" , verifyAdmin , adminEventRouter)
+    app.use("/admin/subscribe", verifyAdmin , subscribeRouter)
+    app.use("/admin/request" , verifyAdmin,requestRouter )
 
     // Moderator
 
@@ -42,5 +47,5 @@ exports.ConfigRouter = (app) => {
 
     app.use("/news-events", postRouter)
 
-    app.use("/subscribe", subscribeRouter)
+    app.use("/contact-us", contactUsRouter)
 }

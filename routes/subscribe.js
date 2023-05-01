@@ -1,50 +1,21 @@
-const { transporter, sendResStatus, sendResBody } = require("../utils/helpers");
 const express = require("express");
 const router = express.Router();
-const session = require("express-session");
+const { Subscribe } = require("../db/sequelize");
 
-router.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-  })
+const subscribeController = require("../controllers/subscribe");
+const { sendResStatus } = require("../utils/helpers");
+
+router.post(
+  "/:id",
+  (req, res, next) => {
+    const { email } = req.body;
+    Subscribe.findAll({ where: { email } }).then((email) => {
+      if (email) return sendResStatus(res,409);
+    });
+    next()
+  },
+  subscribeController.create
 );
-
-function generateCaptcha() {
-  const captcha = Math.random().toString(36).substr(2, 5);
-  return captcha;
-}
-
-router.get("/", (req, res) => {
-  req.session.captcha = generateCaptcha();
-  res.json({ captcha: req.session.captcha });
-});
-
-router.post("/", (req, res) => {
-  const options = req.body;
-  const userCaptcha = req.body.captcha;
-
-  const captcha = req.session.captcha;
-
-  if (!captcha || captcha !== userCaptcha) {
-    sendResBody(res, 400, "invalid Captcha");
-  } else {
-    const message = `from - ${options.email} ${options.text}`;
-
-    transporter
-      .sendMail({
-        from: process.env.EMAIL_LOGIN,
-        to: process.env.EMAIL_LOGIN,
-        subject: `${options.name} ${options.surname}`,
-        text: message,
-      })
-      .then((_) => {
-        delete req.session.captcha;
-        sendResStatus(res, 201, "Email Sent");
-      })
-      .catch((e) => sendResStatus(res, 400, "Something went wrong"));
-  }
-});
+router.get("/", subscribeController.index);
 
 module.exports = router;

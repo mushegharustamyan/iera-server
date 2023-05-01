@@ -1,5 +1,5 @@
-const { Event } = require("../../db/sequelize");
-const jwt_decode = require("jwt-decode");
+const { Event, Request } = require("../../db/sequelize");
+const jwt = require("jsonwebtoken");
 const { Op, where } = require("sequelize");
 const {
   sendResStatus,
@@ -16,6 +16,10 @@ const eventControllers = () => {
     const file = req.file;
     const { token } = req.headers;
 
+    const formatDate = new Date(date);
+    const formatStartDate = new Date(startDate);
+    const formaEndDate = new Date(endDate);
+
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: file.originalname,
@@ -23,17 +27,37 @@ const eventControllers = () => {
       ContentType: file.mimetype,
     };
     try {
-      const { Location } = await s3.send(new PutObjectCommand(params));
-      const news = await Event.create({
+      await s3.send(new PutObjectCommand(params));
+      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+      const event = await Event.create({
         title,
         description,
-        startDate,
-        endDate,
-        authorId: jwt_decode(token).id,
+        startDate: formatStartDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+        endDate: formaEndDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+        authorId: jwt.decode(token).id,
         status: "approved",
-        date,
+        date: formatDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
         type: "event",
+        img: location,
       });
+      const request = await Request.create({
+        title: event.title,
+        postId: event.id,
+      })
+        .then(console.log("nice"))
+        .catch(console.log("no nice"));
       sendResStatus(res, 201);
     } catch (error) {
       console.error(error);
@@ -57,7 +81,8 @@ const eventControllers = () => {
       };
       await s3.send(new DeleteObjectCommand(params));
 
-      await Event.delete({ where: { id } });
+      await Event.destroy({ where: { id } });
+      await Request.destroy({ where: { postId: id } });
       return sendResStatus(res, 204);
     } catch (error) {
       return sendResStatus(res, 500);

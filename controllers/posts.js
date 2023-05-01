@@ -19,7 +19,7 @@ exports.index = async (req, res) => {
         date: {
           [Op.between]: [
             startDate ? startDate : "01/01/1900",
-            endDate ? endDate : "9999/12/31",
+            endDate ? endDate : "31/12/9999",
           ],
         },
         status: "approved",

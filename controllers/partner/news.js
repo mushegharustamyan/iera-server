@@ -1,4 +1,5 @@
 const { News, Request } = require("../../db/sequelize");
+const jwt = require("jsonwebtoken")
 const {
   sendResStatus,
   sendResBody,
@@ -14,7 +15,7 @@ exports.create = (req, res) => {
     description,
     img,
     date,
-    authorId: jwt_decode(token).id,
+    authorId: jwt.decode(token).id,
     status: "pending",
   })
     .then((_) => {

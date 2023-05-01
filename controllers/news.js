@@ -9,34 +9,9 @@ const { s3 } = require("../utils/helpers");
 
 const newsController = () => {
   const index = (req, res) => {
-    const { startDate, endDate } = req.body;
-    const { order } = req.params;
-
-    const validOrder = ["DESC, ASC"];
-    const selectedOrder = validOrder.includes(order) ? order : "ASC";
-
-    if (!startDate && !endDate) {
-      return News.findAll({ order: [["createdAt", selectedOrder]] })
-        .then((result) => sendResBody(res, 200, result))
-        .catch((_) => sendResStatus(res, 500));
-    } else {
-      const filter =
-        startDate && endDate
-          ? {
-              [Op.and]: [
-                { date: { [Op.gte]: startDate } },
-                { date: { [Op.lte]: endDate } },
-              ],
-            }
-          : { date: { [Op.lte]: startDate ?? endDate } };
-
-      return News.findAll(
-        { where: filter },
-        { order: [["createdAt", selectedOrder]] }
-      )
-        .then((result) => sendResBody(res, 200, result))
-        .catch((e) => sendResBody(res, 500, e));
-    }
+    News.findAll()
+      .then((result) => sendResBody(res, 200, result))
+      .catch((e) => sendResBody(res, 500, e));
   };
 
   const show = (req, res) => {
@@ -75,7 +50,7 @@ const newsController = () => {
 
   const update = async (req, res) => {
     const { id } = req.params;
-    const { title, description, date } = req.body;
+    const { title, description } = req.body;
     const file = req.file;
 
     try {
@@ -106,9 +81,7 @@ const newsController = () => {
         title,
         description,
         img: location,
-        date,
         status: "approved",
-        
       });
       await News.update(body, { where: { id } });
 
@@ -124,12 +97,13 @@ const newsController = () => {
     const { token } = req.headers;
     const file = req.file;
 
+    const formatDate = new Date(date);
+
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: file.originalname,
       Body: file.buffer,
       ContentType: file.mimetype,
-      
     };
 
     try {
@@ -139,7 +113,11 @@ const newsController = () => {
         title,
         description,
         img: location,
-        date,
+        date: formatDate.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
         authorId: jwt.decode(token).id,
         status: "approved",
         type: "news",

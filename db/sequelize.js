@@ -135,12 +135,24 @@ const Request = sequelize.define("requests" , {
     type: DataTypes.STRING,
     allowNull: false
   },
-  reason: {
+  postId: {
     type: DataTypes.STRING
-  }
+  },
+})
+
+const Subscribe = sequelize.define("subscribers", {
+  id: {
+    primaryKey: true,
+    type: DataTypes.INTEGER,
+    autoIncrement: true
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
 })
 
 User.belongsTo(Role , {foreignKey: "roleId"})
 News.belongsTo(User , {foreignKey: "authorId"})
 Event.belongsTo(User , {foreignKey: "authorId"})
-module.exports = { sequelize, Role, User, News, Request , Event};
+module.exports = { sequelize, Role, User, News, Request , Event,Subscribe};
