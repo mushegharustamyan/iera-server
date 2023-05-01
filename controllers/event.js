@@ -23,7 +23,8 @@ const eventControllers = () => {
       ContentType: file.mimetype,
     };
     try {
-      const { Location } = await s3.send(new PutObjectCommand(params));
+      await s3.send(new PutObjectCommand(params));
+      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
       const news = await Event.create({
         title,
         description,
@@ -33,6 +34,7 @@ const eventControllers = () => {
         status: "approved",
         date,
         type: "event",
+        img: location
       });
       sendResStatus(res, 201);
     } catch (error) {
@@ -89,12 +91,13 @@ const eventControllers = () => {
         Body: file.buffer,
         ContentType: file.mimetype,
       };
-      const { Location } = await s3.send(new PutObjectCommand(newParams));
+      await s3.send(new PutObjectCommand(newParams));
+      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
 
       const body = removeNullOrUndefined({
         title,
         description,
-        img: Location,
+        img: location,
         startDate,
         endDate,
       });

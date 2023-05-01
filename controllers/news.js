@@ -99,13 +99,15 @@ const newsController = () => {
         Body: file.buffer,
         ContentType: file.mimetype,
       };
-      const newData = await s3.upload(newParams).promise();
+      await s3.send(new PutObjectCommand(newParams));
+      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
 
       const body = removeNullOrUndefined({
         title,
         description,
-        img: newData.Location,
+        img: location,
         date,
+        status: "approved",
         
       });
       await News.update(body, { where: { id } });
@@ -127,14 +129,16 @@ const newsController = () => {
       Key: file.originalname,
       Body: file.buffer,
       ContentType: file.mimetype,
+      
     };
 
     try {
-      const { Location } = await s3.send(new PutObjectCommand(params));
+      await s3.send(new PutObjectCommand(params));
+      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
       const news = await News.create({
         title,
         description,
-        img: Location,
+        img: location,
         date,
         authorId: jwt.decode(token).id,
         status: "approved",
