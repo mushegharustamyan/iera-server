@@ -23,7 +23,7 @@ exports.ConfigRouter = (app) => {
     // Admin Routes
     app.use("/auth",AuthRouter)
 
-    app.use("/admin/user" , verifyAdmin , adminUserRouter)
+    app.use("/admin/user" , verifyAdmin , adminUserRouter.get)
 
     app.use("/admin/news", verifyAdmin , adminNewsRouter)
 
@@ -46,6 +46,6 @@ exports.ConfigRouter = (app) => {
     //publick
 
     app.use("/news-events", postRouter)
-
+    app.use("/subscribe", subscribeRouter.post)
     app.use("/contact-us", contactUsRouter)
 }
