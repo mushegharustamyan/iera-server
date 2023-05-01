@@ -1,5 +1,5 @@
 const { Event } = require("../db/sequelize");
-const jwt_decode = require("jwt-decode");
+const jwt = require("jsonwebtoken")
 const { Op, where } = require("sequelize");
 const {
   sendResStatus,
@@ -29,7 +29,7 @@ const eventControllers = () => {
         description,
         startDate,
         endDate,
-        authorId: jwt_decode(token).id,
+        authorId: jwt.decode(token).id,
         status: "approved",
         date,
         type: "event",

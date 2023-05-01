@@ -2,7 +2,7 @@ const { News } = require("../db/sequelize");
 const { removeNullOrUndefined } = require("../utils/helpers");
 const { sendResStatus, sendResBody } = require("../utils/helpers");
 const { Op } = require("sequelize");
-const jwt_decode = require("jwt-decode");
+const jwt = require("jsonwebtoken");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 const { s3 } = require("../utils/helpers");
@@ -136,7 +136,7 @@ const newsController = () => {
         description,
         img: Location,
         date,
-        authorId: jwt_decode(token.id),
+        authorId: jwt.decode(token).id,
         status: "approved",
         type: "news",
       });
