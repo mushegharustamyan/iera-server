@@ -15,6 +15,7 @@ const modearatorNewsRouter = require("../routes/news")
 const modearatorEventRouter = require("../routes/event")
 
 const postRouter = require("../routes/post")
+const userRouter = require("../routes/users")
 
 
 exports.ConfigRouter = (app) => {
@@ -23,12 +24,12 @@ exports.ConfigRouter = (app) => {
     // Admin Routes
     app.use("/auth",AuthRouter)
 
-    app.use("/admin/user" , verifyAdmin , adminUserRouter.get)
+    app.use("/admin/user" , verifyAdmin , adminUserRouter)
 
     app.use("/admin/news", verifyAdmin , adminNewsRouter)
 
     app.use("/admin/event" , verifyAdmin , adminEventRouter)
-    app.use("/admin/subscribe", verifyAdmin , subscribeRouter)
+    app.use("/",  subscribeRouter)//admin/subscribers have access only superuser
     app.use("/admin/request" , verifyAdmin,requestRouter )
 
     // Moderator
@@ -43,9 +44,10 @@ exports.ConfigRouter = (app) => {
 
     app.use("/partner/event",verifyPartner,partnerEventRouter)
 
-    //publick
+    //public
 
     app.use("/news-events", postRouter)
-    app.use("/subscribe", subscribeRouter.post)
+    app.use("/", subscribeRouter)//subscribe
     app.use("/contact-us", contactUsRouter)
+    app.use("/user",userRouter )
 }

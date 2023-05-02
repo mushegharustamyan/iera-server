@@ -8,8 +8,8 @@ exports.index = ( req,res) => {
 }
 
 exports.show  = (req,res) => {
-    const {postId} = req.body
-    Event.findByPk(postId)
+    const {id} = req.params
+    Event.findByPk(id)
         .then(result => sendResBody(res,200,result))
         .catch(result => sendResStatus(res,500))
 }

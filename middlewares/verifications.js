@@ -16,7 +16,7 @@ exports.verifyAdmin = (req, res, next) => {
     Role.findByPk(user.roleId).then((role) => {
       if (!role) return sendResStatus(res, 403);
 
-      if (!role.access_level === 1) return sendResStatus(res, 403);
+      if (role.access_level !== 1) return sendResStatus(res, 403);
 
       next();
     });
@@ -36,7 +36,7 @@ exports.verifyModerator = (req, res, next) => {
     Role.findByPk(user.roleId).then((role) => {
       if (!role) return sendResStatus(res, 403);
 
-      if (!role.access_level === 2) return sendResStatus(res, 403);
+      if (role.access_level !== 2) return sendResStatus(res, 403);
 
       next();
     });
@@ -56,25 +56,25 @@ exports.verifyPartner = (req, res, next) => {
     Role.findByPk(user.roleId).then((role) => {
       if (!role) return sendResStatus(res, 403);
 
-      if (!role.access_level === 1) return sendResStatus(res, 403);
+      if (role.access_level !== 3) return sendResStatus(res, 403);
 
       next();
     });
   });
 };
 
-exports.verifyDecline = (req , res , next) => {
-  const { requestId } = req.query
+exports.verifyDecline = (req, res, next) => {
+  const { requestId } = req.query;
 
-  const { reason } = req.body
+  const { reason } = req.body;
 
-  if(!requestId || !reason) return sendResStatus(res , 403)
+  if (!requestId || !reason) return sendResStatus(res, 403);
 
   Request.findByPk(+requestId)
-  .then((request) => {
-    if(!request) return sendResStatus(res , 404)
+    .then((request) => {
+      if (!request) return sendResStatus(res, 404);
 
-    next()
-  })
-  .catch(_ => sendResStatus(res , 500))
-}
+      next();
+    })
+    .catch((_) => sendResStatus(res, 500));
+};

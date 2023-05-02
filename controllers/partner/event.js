@@ -43,7 +43,7 @@ const eventControllers = () => {
           year: "numeric",
         }),
         authorId: jwt.decode(token).id,
-        status: "approved",
+        status: "pending",
         date: formatDate.toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "2-digit",
@@ -65,30 +65,6 @@ const eventControllers = () => {
     }
   };
 
-  const deleteEvent = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-      const event = await Event.findOne({ where: { id } });
-      if (!event) {
-        return sendResStatus(res, 404);
-      }
-      const imageUrl = news.img;
-
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: imageUrl.split("/").pop(),
-      };
-      await s3.send(new DeleteObjectCommand(params));
-
-      await Event.destroy({ where: { id } });
-      await Request.destroy({ where: { postId: id } });
-      return sendResStatus(res, 204);
-    } catch (error) {
-      return sendResStatus(res, 500);
-    }
-  };
-
   const update = async (req, res) => {
     const { id } = req.params;
     const { title, description, startDate, endDate } = req.body;
@@ -99,32 +75,39 @@ const eventControllers = () => {
       if (!event) {
         return sendResStatus(res, 404);
       }
-      const imageUrl = news.img;
+      const imageUrl = event.img;
+      if (file) {
+        const oldKey = imageUrl.split("/").pop();
+        const deleteParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: oldKey,
+        };
+        await s3.send(new DeleteObjectCommand(deleteParams));
 
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: imageUrl.split("/").pop(),
-      };
-      await s3.send(new DeleteObjectCommand(params));
-
-      const newKey = `${Date.now()}_${file.originalname}`;
-      const newParams = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: newKey,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      };
-      const { Location } = await s3.send(new PutObjectCommand(newParams));
-
+        const newKey = `${Date.now()}_${file.originalname}`;
+        const uploadParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: newKey,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+        await s3.send(new PutObjectCommand(newParams));
+        const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+        imageUrl = location;
+      }
       const body = removeNullOrUndefined({
         title,
         description,
-        img: Location,
+        img: imageUrl,
         startDate,
         endDate,
       });
 
-      await Event.update(body, { where: { id } });
+      const post = await Event.update(body, { where: { id } });
+      const request = await Request.create({
+        title: post.title,
+        postId: post.id,
+      });
       return sendResStatus(res, 201, "Record Updated");
     } catch (error) {
       return sendResStatus(res, 500, e);

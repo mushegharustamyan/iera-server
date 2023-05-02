@@ -45,6 +45,9 @@ const User = sequelize.define("user", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  img: {
+    type: DataTypes.STRING
+  }
 });
 
 const News = sequelize.define("news", {

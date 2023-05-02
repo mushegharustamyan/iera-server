@@ -2,11 +2,13 @@ const express = require("express");
 const router = express.Router();
 const { Subscribe } = require("../db/sequelize");
 
+const {verifyAdmin} = require("../middlewares/verifications")
+
 const subscribeController = require("../controllers/subscribe");
 const { sendResStatus } = require("../utils/helpers");
 
 router.post(
-  "/:id",
+  "/subscribe",
   (req, res, next) => {
     const { email } = req.body;
     Subscribe.findAll({ where: { email } }).then((email) => {
@@ -16,6 +18,6 @@ router.post(
   },
   subscribeController.create
 );
-router.get("/", subscribeController.index);
+router.get("/admin/subscribers",verifyAdmin , subscribeController.index);
 
 module.exports = router;

@@ -60,27 +60,29 @@ const newsController = () => {
       }
 
       const imageUrl = news.img;
+      if (file) {
+        const oldKey = imageUrl.split("/").pop();
+        const deleteParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: oldKey,
+        };
+        await s3.send(new DeleteObjectCommand(deleteParams));
 
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: imageUrl.split("/").pop(),
-      };
-      await s3.send(new DeleteObjectCommand(params));
-
-      const newKey = `${Date.now()}_${file.originalname}`;
-      const newParams = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: newKey,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      };
-      await s3.send(new PutObjectCommand(newParams));
-      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-
+        const newKey = `${Date.now()}_${file.originalname}`;
+        const uploadParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: newKey,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+        await s3.send(new PutObjectCommand(newParams));
+        const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+        imageUrl = location;
+      }
       const body = removeNullOrUndefined({
         title,
         description,
-        img: location,
+        img: imageUrl,
         status: "approved",
       });
       await News.update(body, { where: { id } });

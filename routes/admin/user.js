@@ -1,12 +1,20 @@
 const { check } = require("express-validator");
 const express = require("express");
 const router = express.Router();
+const multer = require("multer")
 
-const adminUserController = require("../../controllers/admin/user");
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB file size limit
+  },
+});
+
+const adminUserController = require("../../controllers/admin/user")
 const { verifyCreate, verifyUser } = require("../../middlewares/admin/user");
 
 router.post(
-  "/",
+  "/",upload.single('image'),
   [
     check("name").notEmpty().withMessage("User name cannot be empty"),
 
@@ -27,7 +35,7 @@ router.post(
 );
 router.delete("/:id", [verifyUser], adminUserController.delete);
 router.patch(
-  "/:id",
+  "/:id",upload.single('image'),
   [
     check("name")
       .optional()
