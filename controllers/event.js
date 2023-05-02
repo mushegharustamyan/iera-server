@@ -29,7 +29,7 @@ const eventControllers = () => {
     try {
       await s3.send(new PutObjectCommand(params));
       const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-      const ecent = await Event.create({
+      const event = await Event.create({
         title,
         description,
         startDate: formatStartDate.toLocaleDateString("en-GB", {
