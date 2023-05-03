@@ -14,13 +14,14 @@ exports.verifyPost = (req, res, next) => {
 exports.verifyCreate = (req, res, next) => {
   const { title, description, date} = req.body;
 
+  console.log(req.body)
+
   if (!title || !description  || !date) return sendResStatus(res, 409);
   Post.findOne({
     where: {
       title,
     },
   }).then((news) => {
-    console.log(title,description)
     if (news) return sendResStatus(res, 409);
     next();
   });
