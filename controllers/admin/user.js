@@ -11,7 +11,7 @@ const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 exports.create = async (req, res) => {
   const { name, password, login, roleId } = req.body;
   const hashedPwd = await bcrypt.hash(password, 8);
-  const file = req.file;
+  const file = req?.file;
 
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,

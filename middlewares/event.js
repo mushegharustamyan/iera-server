@@ -1,10 +1,10 @@
-const { Event } = require("../db/sequelize");
+const { Post } = require("../db/sequelize");
 const { sendResStatus } = require("../utils/helpers");
 
 exports.verifyPost = (req, res, next) => {
   const { id } = req.params;
 
-  Event.findByPk(id).then((post) => {
+  Post.findByPk(id).then((post) => {
     if (!post) return sendResStatus(res, 404);
 
     next();
@@ -15,7 +15,7 @@ exports.verifyCreate = (req, res, next) => {
   const { title, description} = req.body;
 
   if (!title || !description ) return sendResStatus(res, 409);
-  Event.findOne({
+  Post.findOne({
     where: {
       title,
     },
