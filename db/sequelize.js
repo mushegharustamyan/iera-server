@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require("sequelize");
+const { Sequelize, DataTypes, STRING } = require("sequelize");
 const uniqid = require('uniqid');
 
 const sequelize = new Sequelize("iera", "root", "root", {
@@ -50,66 +50,106 @@ const User = sequelize.define("user", {
   }
 });
 
-const News = sequelize.define("news", {
-  id: {
-    type: DataTypes.STRING(36),
-    primaryKey: true,
-    allowNull: false
-  },
-  title: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-  },
-  description: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  date: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  status: {
-    type: DataTypes.ENUM(["approved" , "rejected" , "pending"])
-  },
-  img: {
-    type: DataTypes.STRING,
-  },
-  type: {
-    type: DataTypes.STRING
-  }
-}, {
-  hooks: {
-    beforeValidate: (news, options) => {
-      news.id = uniqid(); // generate a unique ID for each record
-    }
-  }
-});
+// const News = sequelize.define("news", {
+//   id: {
+//     type: DataTypes.STRING(36),
+//     primaryKey: true,
+//     allowNull: false
+//   },
+//   title: {
+//     type: DataTypes.STRING(255),
+//     allowNull: false,
+//   },
+//   description: {
+//     type: DataTypes.TEXT,
+//     allowNull: false,
+//   },
+//   date: {
+//     type: DataTypes.STRING,
+//     allowNull: false
+//   },
+//   status: {
+//     type: DataTypes.ENUM(["approved" , "rejected" , "pending"])
+//   },
+//   img: {
+//     type: DataTypes.STRING,
+//   },
+//   type: {
+//     type: DataTypes.STRING
+//   }
+// }, {
+//   hooks: {
+//     beforeValidate: (news, options) => {
+//       news.id = uniqid(); // generate a unique ID for each record
+//     }
+//   }
+// });
 
-const Event = sequelize.define("events", {
+// const Event = sequelize.define("events", {
+//   id: {
+//     type: DataTypes.STRING(36),
+//     primaryKey: true,
+//     allowNull: false
+//   },
+//   title: {
+//     type: DataTypes.TEXT,
+//     allowNull: false,
+//   },
+//   description: {
+//     type: DataTypes.TEXT,
+//     allowNull: false,
+//   },
+//   startDate: {
+//     type: DataTypes.STRING,
+//     allowNull: false
+//   },
+//   endDate: {
+//     type: DataTypes.STRING,
+//     allowNull: false
+//   },
+//   date: {
+//     type: DataTypes.STRING,
+//     allowNull: false
+//   },
+//   status: {
+//     type: DataTypes.ENUM(["approved" , "rejected" , "pending"])
+//   },
+//   img: {
+//     type: DataTypes.STRING,
+//   },
+//   type: {
+//     type: DataTypes.STRING
+//   }
+// }, {
+//   hooks: {
+//     beforeValidate: (event, options) => {
+//       event.id = uniqid(); 
+//     }
+//   }
+// });
+
+const Post = sequelize.define("post", {
   id: {
-    type: DataTypes.STRING(36),
     primaryKey: true,
-    allowNull: false
+    autoIncrement: true,
+    type: DataTypes.INTEGER
   },
   title: {
-    type: DataTypes.TEXT,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   description: {
     type: DataTypes.TEXT,
-    allowNull: false,
+  },
+  date:{
+    type: DataTypes.STRING,
+    allowNull: false
   },
   startDate: {
     type: DataTypes.STRING,
-    allowNull: false
   },
   endDate: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  date: {
-    type: DataTypes.STRING,
-    allowNull: false
+    type: DataTypes.STRING
   },
   status: {
     type: DataTypes.ENUM(["approved" , "rejected" , "pending"])
@@ -118,15 +158,10 @@ const Event = sequelize.define("events", {
     type: DataTypes.STRING,
   },
   type: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    allowNull: false
   }
-}, {
-  hooks: {
-    beforeValidate: (event, options) => {
-      event.id = uniqid(); 
-    }
-  }
-});
+})
 
 const Request = sequelize.define("requests" , {
   id: {
@@ -137,9 +172,6 @@ const Request = sequelize.define("requests" , {
   title: {
     type: DataTypes.STRING,
     allowNull: false
-  },
-  postId: {
-    type: DataTypes.STRING
   },
 })
 
@@ -156,6 +188,6 @@ const Subscribe = sequelize.define("subscribers", {
 })
 
 User.belongsTo(Role , {foreignKey: "roleId"})
-News.belongsTo(User , {foreignKey: "authorId"})
-Event.belongsTo(User , {foreignKey: "authorId"})
-module.exports = { sequelize, Role, User, News, Request , Event,Subscribe};
+Post.belongsTo(User , {foreignKey: "authorId"})
+Request.belongsTo(Post, {foreignKey: "postId"})
+module.exports = { sequelize, Role, Post ,User, Request , Subscribe};

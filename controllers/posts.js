@@ -1,8 +1,7 @@
 const { Op } = require("sequelize");
-const { News, Event } = require("../db/sequelize");
+const { Post } = require("../db/sequelize");
 const {
   sendResBody,
-  removeNullOrUndefined,
   sendResStatus,
 } = require("../utils/helpers");
 
@@ -14,7 +13,7 @@ exports.index = async (req, res) => {
   const selectedOrder = validOrder.includes(order) ? order : "ASC";
 
   try {
-    let news = await News.findAll({
+    let result = await Post.findAll({
       where: {
         date: {
           [Op.between]: [
@@ -27,21 +26,6 @@ exports.index = async (req, res) => {
       order: [["date", selectedOrder]],
     });
 
-    let events = await Event.findAll({
-      where: {
-        date: {
-          [Op.between]: [
-            startDate ?? "01/01/1900",
-            endDate ? endDate : "9999/12/31",
-          ],
-        },
-        status: "approved",
-      },
-      order: [["date", selectedOrder]],
-    });
-
-    let result = [...news, ...events];
-
     sendResBody(res, 200, result);
   } catch (e) {
     sendResBody(res, 500, e);
@@ -52,10 +36,7 @@ exports.show = async (req, res) => {
   const { id } = req.params;
 
   try {
-    let news = await News.findByPk(id);
-    let events = await Event.findByPk(id);
-    let result = news ?? events;
-    result = result?.dataValues ?? null;
+    let result = await Post.findByPk(id)
 
     sendResBody(res, 200, result);
   } catch (e) {

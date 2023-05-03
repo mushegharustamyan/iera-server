@@ -1,6 +1,5 @@
-const { Event } = require("../db/sequelize");
+const { Post } = require("../db/sequelize");
 const jwt = require("jsonwebtoken");
-const { Op, where } = require("sequelize");
 const {
   sendResStatus,
   sendResBody,
@@ -29,7 +28,7 @@ const eventControllers = () => {
     try {
       await s3.send(new PutObjectCommand(params));
       const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-      const event = await Event.create({
+      await Post.create({
         title,
         description,
         startDate: formatStartDate.toLocaleDateString("en-GB", {
@@ -64,7 +63,7 @@ const eventControllers = () => {
     const { id } = req.params;
 
     try {
-      const event = await Event.findOne({ where: { id } });
+      const event = await Post.findOne({ where: { id } });
       if (!event) {
         return sendResStatus(res, 404);
       }
@@ -76,7 +75,7 @@ const eventControllers = () => {
       };
       await s3.send(new DeleteObjectCommand(params));
 
-      await Event.destroy({ where: { id } });
+      await Post.destroy({ where: { id } });
       return sendResStatus(res, 204);
     } catch (error) {
       console.log(error);
@@ -93,7 +92,7 @@ const eventControllers = () => {
     const formaEndDate = new Date(endDate);
 
     try {
-      const event = await Event.findOne({ where: { id } });
+      const event = await Post.findOne({ where: { id } });
       if (!event) {
         return sendResStatus(res, 404);
       }
@@ -114,7 +113,7 @@ const eventControllers = () => {
           ContentType: file.mimetype,
         };
         await s3.send(new PutObjectCommand(newParams));
-        const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+        const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
         imageUrl = location;
       }
       const body = removeNullOrUndefined({
@@ -133,7 +132,7 @@ const eventControllers = () => {
         }),
       });
 
-      await Event.update(body, { where: { id } });
+      await Post.update(body, { where: { id } });
       return sendResStatus(res, 201, "Record Updated");
     } catch (error) {
       return sendResStatus(res, 500, e);
@@ -141,7 +140,7 @@ const eventControllers = () => {
   };
 
   const index = (req, res) => {
-    Event.findAll()
+    Post.findAll()
       .then((result) => sendResBody(res, 200, result))
       .catch((_) => sendResStatus(res, 500));
   };
@@ -149,7 +148,7 @@ const eventControllers = () => {
   const show = (req, res) => {
     const { id } = req.params;
 
-    Event.findByPk(id)
+    Post.findByPk(id)
       .then((post) => sendResBody(res, 200, post))
       .catch((_) => sendResStatus(res, 500));
   };
@@ -157,7 +156,7 @@ const eventControllers = () => {
   const approve = (req, res) => {
     const { id } = req.params;
 
-    Event.update({ status: "approved" }, { where: { id } })
+    Post.update({ status: "approved" }, { where: { id } })
       .then((_) => sendResStatus(res, 203))
       .catch((_) => sendResStatus(res, 500));
   };
@@ -167,7 +166,7 @@ const eventControllers = () => {
     const { requestId } = req.query;
     const { reason } = req.body;
 
-    Event.update({ status: "rejected" }, { where: { id } })
+    Post.update({ status: "rejected" }, { where: { id } })
       .then((_) => {
         Request.update({ reason }, { where: { id: requestId } }).then((_) =>
           sendResStatus(res, 200)

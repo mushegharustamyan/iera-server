@@ -1,4 +1,4 @@
-const { News, Request } = require("../../db/sequelize");
+const { News, Request, Post } = require("../../db/sequelize");
 const jwt = require("jsonwebtoken");
 const { Op, where } = require("sequelize");
 const {
@@ -27,7 +27,7 @@ const newsControllers = () => {
     try {
       await s3.send(new PutObjectCommand(params));
       const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-      const news = await News.create({
+      const news = await Post.create({
         title,
         description,
         authorId: jwt.decode(token).id,
@@ -40,7 +40,7 @@ const newsControllers = () => {
         type: "news",
         img: location,
       });
-      const request = await Request.create({
+      await Request.create({
         title: news.title,
         postId: news.id,
       });
@@ -53,11 +53,11 @@ const newsControllers = () => {
 
   const update = async (req, res) => {
     const { id } = req.params;
-    const { title, description, startDate, endDate } = req.body;
+    const { title, description } = req.body;
     const file = req.file;
 
     try {
-      const news = await News.findOne({ where: { id } });
+      const news = await Post.findByPk(id);
       if (!news) {
         return sendResStatus(res, 404);
       }
@@ -79,7 +79,7 @@ const newsControllers = () => {
           ContentType: file.mimetype,
         };
         await s3.send(new PutObjectCommand(newParams));
-        const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+        const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
         imageUrl = location;
       }
 
@@ -90,11 +90,10 @@ const newsControllers = () => {
         status: "pending",
       });
 
-      const post = await News.update(body, { where: { id } });
-      const request = await Request.create({
-        title: post.title,
-        postId: post.id,
-      });
+      const post = await Post.update(body, { where: { id } });
+      await Request.update({
+        reason: null
+      }, {where: {postId: id}});
       return sendResStatus(res, 201, "Record Updated");
     } catch (error) {
       return sendResStatus(res, 500, e);
@@ -106,7 +105,7 @@ const newsControllers = () => {
     const { userId } = jwt.decode(token);
 
     try {
-      const news = await News.findAll({
+      const news = await Post.findAll({
         where: {
           authorID: userId,
         },
@@ -122,7 +121,7 @@ const newsControllers = () => {
   const show = (req, res) => {
     const { id } = req.params;
 
-    News.findByPk(id)
+    Post.findByPk(id)
       .then((post) => sendResBody(res, 200, post))
       .catch((_) => sendResStatus(res, 500));
   };
