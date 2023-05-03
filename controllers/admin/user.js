@@ -40,7 +40,7 @@ exports.delete = async (req, res) => {
 
   try {
     const user = await User.findOne({ where: { id } });
-    if (user) {
+    if (!user) {
       return sendResStatus(res, 404);
     }
 
