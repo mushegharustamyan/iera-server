@@ -3,12 +3,21 @@ const router = express.Router();
 
 const newsController = require("../../controllers/partner/news")()
 
+const multer = require('multer');
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB file size limit
+  },
+});
+
 const {verifyPost, verifyCreate} = require("../../middlewares/news")
 const {verifyOwn} = require("../../middlewares/partners/news")
 
 router.get("/" , newsController.index)
 router.get("/:id", [verifyPost , verifyOwn] , newsController.show)
-router.put("/:id" , [verifyPost , verifyOwn] , newsController.update)
-router.post("/", verifyCreate , newsController.create)
+router.put("/:id" ,upload.single('image') ,[verifyPost , verifyOwn] , newsController.update)
+router.post("/", upload.single('image'),verifyCreate , newsController.create)
 
 module.exports = router

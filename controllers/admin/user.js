@@ -64,13 +64,17 @@ exports.delete = async (req, res) => {
 exports.update = async (req, res) => {
   const { id } = req.params;
   const { name, password, login, roleId } = req.body;
-  const hashedPwd = await bcrypt.hash(password, 8);
   const file = req.file;
-
+  
   try {
-    const user = User.findOne({ where: { name, login } });
-    if (user) {
+    const user = await User.findOne({ where: { id } });
+    if (user.name === name && user.login === login) {
       return sendResStatus(res, 409);
+    }
+    let uppassword = user.password
+    if(password){
+      const hashedPwd = await bcrypt.hash(password, 8);
+      uppassword = hashedPwd
     }
     let imageUrl = user.img;
     if (file) {
@@ -89,7 +93,7 @@ exports.update = async (req, res) => {
         ContentType: file.mimetype,
       };
       await s3.send(new PutObjectCommand(newParams));
-      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+      const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
       imageUrl = location;
     }
 
@@ -97,7 +101,7 @@ exports.update = async (req, res) => {
       name,
       password,
       login,
-      password: hashedPwd,
+      password: uppassword,
       roleId,
       img: imageUrl,
     });

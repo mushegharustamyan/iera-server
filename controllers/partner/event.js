@@ -14,6 +14,7 @@ const eventControllers = () => {
   const create = async (req, res) => {
     const { title, description, startDate, endDate, date } = req.body;
     const file = req.file;
+    console.log(file)
     const { token } = req.headers;
 
     const formatDate = new Date(date);
@@ -56,8 +57,6 @@ const eventControllers = () => {
         title: event.title,
         postId: event.id,
       })
-        .then(console.log("nice"))
-        .catch(console.log("no nice"));
       sendResStatus(res, 201);
     } catch (error) {
       console.error(error);
