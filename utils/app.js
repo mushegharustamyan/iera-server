@@ -17,6 +17,8 @@ const modearatorEventRouter = require("../routes/event")
 const postRouter = require("../routes/post")
 const userRouter = require("../routes/users")
 
+const approveDeclineRouter = require("../routes/approve-decline")
+
 
 exports.ConfigRouter = (app) => {
     const { verifyAdmin,verifyModerator,verifyPartner } = require('../middlewares/verifications')
@@ -31,13 +33,14 @@ exports.ConfigRouter = (app) => {
     app.use("/admin/event" , verifyAdmin , adminEventRouter)
     app.use("/",  subscribeRouter)//admin/subscribers have access only superuser
     app.use("/admin/request" , verifyAdmin,requestRouter )
-
+    app.use("/admin", approveDeclineRouter)
     // Moderator
 
     app.use("/moderator/news", verifyModerator,modearatorNewsRouter)
 
     app.use("/moderator/event", verifyModerator, modearatorEventRouter)
     app.use("/moderator/request", verifyModerator, requestRouter)
+    app.use("/moderator",approveDeclineRouter)
 
     // Partner
 
