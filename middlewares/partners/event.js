@@ -1,6 +1,6 @@
 const { Post } = require("../../db/sequelize")
 const { sendResStatus } = require("../../utils/helpers")
-const {jwt_decode} = require("jwt-decode")
+const jwt = require("jsonwebtoken")
 
 exports.verifyOwn = (req, res, next) => {
     const {id} = req.params
@@ -8,7 +8,7 @@ exports.verifyOwn = (req, res, next) => {
 
     Post.findByPk(id)
     .then(post => {
-        if(post.authorId !== jwt_decode(token).id) return sendResStatus(res , 403)
+        if(post.authorId !== jwt.decode(token).id) return sendResStatus(res , 403)
 
         next()
     })

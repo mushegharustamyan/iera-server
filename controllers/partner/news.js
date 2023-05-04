@@ -102,12 +102,13 @@ const newsControllers = () => {
 
   const index = async (req, res) => {
     const { token } = req.headers;
-    const { userId } = jwt.decode(token);
+    const { id } = jwt.decode(token);
 
     try {
       const news = await Post.findAll({
         where: {
-          authorID: userId,
+          authorId: id,
+          type: 'news'
         },
       });
 
