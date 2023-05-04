@@ -1,4 +1,4 @@
-const {Request, Event} = require("../db/sequelize")
+const {Request, Event, Post} = require("../db/sequelize")
 const { sendResBody, sendResStatus } = require("../utils/helpers")
 
 exports.index = ( req,res) => {
@@ -9,7 +9,8 @@ exports.index = ( req,res) => {
 
 exports.show  = (req,res) => {
     const {id} = req.params
-    Event.findByPk(id)
+    Post.findByPk(id)
         .then(result => sendResBody(res,200,result))
         .catch(result => sendResStatus(res,500))
 }
+ 

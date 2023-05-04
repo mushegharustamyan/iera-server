@@ -37,6 +37,7 @@ exports.ConfigRouter = (app) => {
     app.use("/moderator/news", verifyModerator,modearatorNewsRouter)
 
     app.use("/moderator/event", verifyModerator, modearatorEventRouter)
+    app.use("/moderator/request", verifyModerator, requestRouter)
 
     // Partner
 
