@@ -8,7 +8,9 @@ const { s3 } = require("../utils/helpers");
 
 const newsController = () => {
   const index = (req, res) => {
-    Post.findAll()
+    Post.findAll({where: {
+      type: "news"
+    }})
       .then((result) => sendResBody(res, 200, result))
       .catch((e) => sendResBody(res, 500, e));
   };

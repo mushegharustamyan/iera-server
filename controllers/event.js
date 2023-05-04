@@ -140,7 +140,11 @@ const eventControllers = () => {
   };
 
   const index = (req, res) => {
-    Post.findAll()
+    Post.findAll({
+      where: {
+        type: "event",
+      },
+    })
       .then((result) => sendResBody(res, 200, result))
       .catch((_) => sendResStatus(res, 500));
   };
