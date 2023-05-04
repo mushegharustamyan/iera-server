@@ -19,5 +19,13 @@ router.post(
   subscribeController.create
 );
 router.get("/admin/subscribers",verifyAdmin , subscribeController.index);
+router.delete("/admin/subscribers/:id", (req,res, next)=> {
+  const {id} = req.params
+
+  Subscribe.findAll({where: id}).then(subscribe => {
+    if(!subscribe) return sendResStatus(res,404)
+  })
+  next()
+}, subscribeController.delete)
 
 module.exports = router;
