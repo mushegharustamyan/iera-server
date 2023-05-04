@@ -2,11 +2,12 @@ const {Subscribe} = require("../db/sequelize")
 const { sendResStatus, sendResBody } = require("../utils/helpers")
 
 exports.create = (req, res) => {
-    const {email} = req.body
+    const email = req.body.email
+    console.log(email)
 
-    Subscribe.create(email)
+    Subscribe.create({email})
         .then(_ => sendResStatus(res,201))
-        .catch(_ => sendResStatus(res,500))
+        .catch(e => console.log(e))
 }
 
 exports.index = (req, res) => { 

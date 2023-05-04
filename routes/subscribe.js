@@ -10,8 +10,8 @@ const { sendResStatus } = require("../utils/helpers");
 router.post(
   "/subscribe",
   (req, res, next) => {
-    const { email } = req.body;
-    Subscribe.findAll({ where: { email } }).then((email) => {
+    const email = req.body.email;
+    Subscribe.findAll({ where: { email } }).then(({email}) => {
       if (email) return sendResStatus(res,409);
     });
     next()
