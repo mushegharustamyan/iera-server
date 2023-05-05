@@ -19,15 +19,19 @@ const eventControllers = () => {
     const formatStartDate = new Date(startDate);
     const formaEndDate = new Date(endDate);
 
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: file.originalname,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    };
     try {
-      await s3.send(new PutObjectCommand(params));
-      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+      let Location;
+      if (file) {
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: file.originalname,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+        await s3.send(new PutObjectCommand(params));
+        const url = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+        Location = url;
+      }
       await Post.create({
         title,
         description,
@@ -49,7 +53,7 @@ const eventControllers = () => {
           year: "numeric",
         }),
         type: "event",
-        img: location,
+        img: Location,
       });
 
       sendResStatus(res, 201);
@@ -113,8 +117,8 @@ const eventControllers = () => {
           ContentType: file.mimetype,
         };
         await s3.send(new PutObjectCommand(newParams));
-        const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
-        imageUrl = location;
+        const url = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
+        imageUrl = url;
       }
       const body = removeNullOrUndefined({
         title,
@@ -157,36 +161,12 @@ const eventControllers = () => {
       .catch((_) => sendResStatus(res, 500));
   };
 
-  const approve = (req, res) => {
-    const { id } = req.params;
-
-    Post.update({ status: "approved" }, { where: { id } })
-      .then((_) => sendResStatus(res, 203))
-      .catch((_) => sendResStatus(res, 500));
-  };
-
-  const decline = (req, res) => {
-    const { id } = req.params;
-    const { requestId } = req.query;
-    const { reason } = req.body;
-
-    Post.update({ status: "rejected" }, { where: { id } })
-      .then((_) => {
-        Request.update({ reason }, { where: { id: requestId } }).then((_) =>
-          sendResStatus(res, 200)
-        );
-      })
-      .catch((_) => sendResStatus(res, 500));
-  };
-
   return {
     create,
     index,
     show,
     update,
     delete: deleteEvent,
-    approve,
-    decline,
   };
 };
 

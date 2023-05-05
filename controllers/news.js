@@ -1,16 +1,19 @@
-const { Post } = require("../db/sequelize");
+const { Post, Request } = require("../db/sequelize");
 const { removeNullOrUndefined } = require("../utils/helpers");
 const { sendResStatus, sendResBody } = require("../utils/helpers");
 const jwt = require("jsonwebtoken");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 const { s3 } = require("../utils/helpers");
+const { where } = require("sequelize");
 
 const newsController = () => {
   const index = (req, res) => {
-    Post.findAll({where: {
-      type: "news"
-    }})
+    Post.findAll({
+      where: {
+        type: "news",
+      },
+    })
       .then((result) => sendResBody(res, 200, result))
       .catch((e) => sendResBody(res, 500, e));
   };
@@ -40,9 +43,14 @@ const newsController = () => {
       };
       await s3.send(new DeleteObjectCommand(params));
 
+      const request = await Request.findOne({ where: { postId: id } });
+      console.log(request);
+      if (request) {
+        await Request.destroy({ where: { postId: id } });
+      }
       await Post.destroy({ where: { id } });
 
-      return sendResStatus(res, 204);
+      sendResStatus(res, 204);
     } catch (error) {
       console.error(error);
       return sendResStatus(res, 500);
@@ -87,7 +95,7 @@ const newsController = () => {
         status: "approved",
       });
       await Post.update(body, { where: { id } });
-      Request.update({reason: null}, {where: {postId: id}})
+      Request.update({ reason: null }, { where: { postId: id } });
 
       return sendResStatus(res, 200, "Record updated");
     } catch (error) {
@@ -103,20 +111,24 @@ const newsController = () => {
 
     const formatDate = new Date(date);
 
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: file.originalname,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    };
-
     try {
-      await s3.send(new PutObjectCommand(params));
-      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+      let Location;
+      if (file) {
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: file.originalname,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+        await s3.send(new PutObjectCommand(params));
+        const url = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+        Location = url;
+      }
+
       await Post.create({
         title,
         description,
-        img: location,
+        img: Location,
         date: formatDate.toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "2-digit",
@@ -132,41 +144,12 @@ const newsController = () => {
       sendResStatus(res, 500);
     }
   };
-
-  const approve = (req, res) => {
-    const { id } = req.params;
-
-    Post.update({ status: "approved" }, { where: { id } })
-      .then((_) => {
-        Request.destroy({where: {postId: id}})
-        .then(_ => sendResStatus(res, 203))
-        .catch((_) => sendResStatus(res, 500));
-      })
-      .catch((_) => sendResStatus(res, 500));
-  };
-
-  const decline = (req, res) => {
-    const { id } = req.params;
-    const { requestId } = req.query;
-    const { reason } = req.body;
-
-    Post.update({ status: "rejected" }, { where: { id } })
-      .then((_) => {
-        Request.update({ reason }, { where: { id: +requestId } }).then((_) =>
-          sendResStatus(res, 200)
-        );
-      })
-      .catch((_) => sendResStatus(res, 500));
-  };
-
   return {
     index,
     show,
     delete: deleteNews,
     update,
     create,
-    approve,
-    decline,
   };
 };
 

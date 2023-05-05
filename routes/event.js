@@ -20,7 +20,6 @@ router.get("/:id", verifyPost , eventController.show)
 router.delete("/:id", verifyPost , eventController.delete)
 router.put("/:id" ,upload.single('image'), verifyPost , eventController.update)
 router.post("/",upload.single('image'), verifyCreate , eventController.create)
-router.put("/approve/:id" , verifyPost ,eventController.approve)
-router.put("/decline/:id", [verifyPost , verifyDecline] ,eventController.decline)
+
 
 module.exports = router

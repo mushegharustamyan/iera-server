@@ -19,7 +19,6 @@ router.get("/:id", verifyPost , newsController.show)
 router.delete("/:id", verifyPost , newsController.delete)
 router.put("/:id" ,upload.single('image'), verifyPost , newsController.update)
 router.post("/", upload.single('image'),verifyCreate , newsController.create)
-router.put("/approve/:id" , newsController.approve)
-router.put("/decline/:id", newsController.decline)
+
 
 module.exports = router
