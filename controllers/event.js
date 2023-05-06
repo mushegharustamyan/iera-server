@@ -35,23 +35,11 @@ const eventControllers = () => {
       await Post.create({
         title,
         description,
-        startDate: formatStartDate.toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
-        endDate: formaEndDate.toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
+        startDate: formatStartDate.toISOString().slice(0, 10),
+        endDate: formaEndDate.toISOString().slice(0, 10),
         authorId: jwt.decode(token).id,
         status: "approved",
-        date: formatDate.toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
+        date: formatDate.toISOString().slice(0, 10),
         type: "event",
         img: Location,
       });

@@ -1,21 +1,20 @@
-const moment = require("moment");
 const { Op } = require("sequelize");
 const { Post } = require("../db/sequelize");
 const { sendResBody, sendResStatus } = require("../utils/helpers");
+const moment = require("moment");
 
 const STATUS_APPROVED = "approved";
 
 exports.index = async (req, res) => {
   try {
-    const { startDate = "01/01/1900", endDate = "31/12/3000" } = req.query;
+    const { startDate = "1999-01-01", endDate = "9999-12-31" } = req.query;
     const { order = "ASC" } = req.params;
-    console.log(startDate, endDate);
 
     const validOrder = ["DESC", "ASC"];
     const selectedOrder = validOrder.includes(order) ? order : "ASC";
 
-    const start = moment(startDate, "DD/MM/YYYY");
-    const end = moment(endDate, "DD/MM/YYYY");
+    const start = moment(startDate, "YYYY-MM-DD");
+    const end = moment(endDate, "YYYY-MM-DD");
 
     const [result] = await Promise.all([
       Post.findAll({
@@ -24,12 +23,16 @@ exports.index = async (req, res) => {
           [Op.or]: [
             {
               date: {
-                [Op.between]: [startDate, endDate],
+                [Op.between]: [
+                  start.format("YYYY-MM-DD"),
+                  end.format("YYYY-MM-DD"),
+                ],
               },
-              startDate: { [Op.between]: [startDate, endDate] },
-              endDate: {
-                [Op.between]: [startDate, endDate],
-              },
+            },
+            {
+              type: "event",
+              startDate: { [Op.gte]: start.format("YYYY-MM-DD") },
+              endDate: { [Op.lte]: end.format("YYYY-MM-DD") },
             },
           ],
         },
@@ -43,6 +46,7 @@ exports.index = async (req, res) => {
     sendResStatus(res, 500);
   }
 };
+
 
 exports.show = async (req, res) => {
   const { id } = req.params;

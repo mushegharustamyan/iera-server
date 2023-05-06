@@ -35,11 +35,7 @@ const newsControllers = () => {
         description,
         authorId: jwt.decode(token).id,
         status: "pending",
-        date: formatDate.toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
+        date: formatDate.toISOString().slice(0, 10),
         type: "news",
         img: Location,
       });

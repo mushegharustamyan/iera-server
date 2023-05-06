@@ -130,11 +130,7 @@ const newsController = () => {
         title,
         description,
         img: Location,
-        date: formatDate.toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
+        date: formatDate.toISOString().slice(0, 10),
         authorId: jwt.decode(token).id,
         status: "approved",
         type: "news",
