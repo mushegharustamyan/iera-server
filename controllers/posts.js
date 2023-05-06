@@ -7,8 +7,8 @@ const STATUS_APPROVED = "approved";
 
 exports.index = async (req, res) => {
   try {
-    const { startDate = "1999-01-01", endDate = "9999-12-31" } = req.query;
-    const { order = "ASC" } = req.params;
+    const { order, startDate, endDate } = req.query; 
+
 
     const validOrder = ["DESC", "ASC"];
     const selectedOrder = validOrder.includes(order) ? order : "ASC";
@@ -46,7 +46,6 @@ exports.index = async (req, res) => {
     sendResStatus(res, 500);
   }
 };
-
 
 exports.show = async (req, res) => {
   const { id } = req.params;
