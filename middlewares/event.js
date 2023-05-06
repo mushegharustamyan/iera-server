@@ -14,7 +14,7 @@ exports.verifyPost = (req, res, next) => {
 exports.verifyCreate = (req, res, next) => {
   const { title, description} = req.body;
 
-  if (!title || !description ) return sendResStatus(res, 409);
+  if (!title || !description ) return sendResStatus(res, 409, "Conflict");
   Post.findOne({
     where: {
       title,

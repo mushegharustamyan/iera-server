@@ -14,7 +14,7 @@ const adminUserController = require("../../controllers/admin/user")
 const { verifyCreate, verifyUser } = require("../../middlewares/admin/user");
 
 router.post(
-  "/",upload.single('image'),
+  "/",upload.single('img'),
   [
     check("name").notEmpty().withMessage("User name cannot be empty"),
 
@@ -35,7 +35,7 @@ router.post(
 );
 router.delete("/:id", [verifyUser], adminUserController.delete);
 router.patch(
-  "/:id",upload.single('image'),
+  "/:id",upload.single('img'),
   [
     check("name")
       .optional()

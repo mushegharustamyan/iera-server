@@ -16,7 +16,7 @@ exports.verifyCreate = (req, res, next) => {
 
   console.log(req.body)
 
-  if (!title || !description  || !date) return sendResStatus(res, 409);
+  if (!title || !description  || !date) return sendResStatus(res, 409, "Conflict");
   Post.findOne({
     where: {
       title,

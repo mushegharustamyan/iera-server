@@ -36,12 +36,13 @@ const newsController = () => {
       }
 
       const imageUrl = news.img;
-
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: imageUrl.split("/").pop(),
-      };
-      await s3.send(new DeleteObjectCommand(params));
+      if (imageUrl) {
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: imageUrl.split("/").pop(),
+        };
+        await s3.send(new DeleteObjectCommand(params));
+      }
 
       const request = await Request.findOne({ where: { postId: id } });
       console.log(request);
@@ -97,7 +98,7 @@ const newsController = () => {
       await Post.update(body, { where: { id } });
       Request.update({ reason: null }, { where: { postId: id } });
 
-      return sendResStatus(res, 200, "Record updated");
+      return sendResStatus(res, 201, "Record updated");
     } catch (error) {
       console.error(error);
       return sendResStatus(res, 500);

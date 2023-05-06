@@ -17,7 +17,7 @@ const {verifyOwn} = require("../../middlewares/partners/event")
 
 router.get("/" , eventControllers.index)
 router.get("/:id", [verifyPost , verifyOwn] , eventControllers.show)
-router.put("/:id" , upload.single('image'),[verifyPost , verifyOwn] , eventControllers.update)
-router.post("/",upload.single('image'), verifyCreate , eventControllers.create)
+router.put("/:id" , upload.single('img'),[verifyPost , verifyOwn] , eventControllers.update)
+router.post("/",upload.single('img'), verifyCreate , eventControllers.create)
 
 module.exports = router

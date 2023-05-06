@@ -17,8 +17,8 @@ const {verifyPost, verifyCreate} = require("../middlewares/news")
 router.get("/" , newsController.index)
 router.get("/:id", verifyPost , newsController.show)
 router.delete("/:id", verifyPost , newsController.delete)
-router.put("/:id" ,upload.single('image'), verifyPost , newsController.update)
-router.post("/", upload.single('image'),verifyCreate , newsController.create)
+router.put("/:id" ,upload.single('img'), verifyPost , newsController.update)
+router.post("/", upload.single('img'),verifyCreate , newsController.create)
 
 
 module.exports = router

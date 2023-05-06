@@ -72,17 +72,17 @@ const eventControllers = () => {
         return sendResStatus(res, 404);
       }
       const imageUrl = event.img;
-
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: imageUrl.split("/").pop(),
-      };
-      await s3.send(new DeleteObjectCommand(params));
+      if (imageUrl) {
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: imageUrl.split("/").pop(),
+        };
+        await s3.send(new DeleteObjectCommand(params));
+      }
 
       await Post.destroy({ where: { id } });
       return sendResStatus(res, 204);
     } catch (error) {
-      console.log(error);
       return sendResStatus(res, 500);
     }
   };

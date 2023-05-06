@@ -17,7 +17,7 @@ const {verifyOwn} = require("../../middlewares/partners/news")
 
 router.get("/" , newsController.index)
 router.get("/:id", [verifyPost , verifyOwn] , newsController.show)
-router.put("/:id" ,upload.single('image') ,[verifyPost , verifyOwn] , newsController.update)
-router.post("/", upload.single('image'),verifyCreate , newsController.create)
+router.put("/:id" ,upload.single('img') ,[verifyPost , verifyOwn] , newsController.update)
+router.post("/", upload.single('img'),verifyCreate , newsController.create)
 
 module.exports = router

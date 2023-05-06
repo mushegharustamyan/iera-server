@@ -5,6 +5,7 @@ const { sendResStatus, getEnv, sendResBody } = require("../utils/helpers");
 
 exports.signin = (req, res) => {
   const { login, password } = req.body;
+  if(!login && !password) return sendResStatus(res,409,"Cannot be empty")
   User.findOne({
     where: {
       login,

@@ -18,8 +18,8 @@ const { verifyDecline } = require("../middlewares/verifications");
 router.get("/" , eventController.index)
 router.get("/:id", verifyPost , eventController.show)
 router.delete("/:id", verifyPost , eventController.delete)
-router.put("/:id" ,upload.single('image'), verifyPost , eventController.update)
-router.post("/",upload.single('image'), verifyCreate , eventController.create)
+router.put("/:id" ,upload.single('img'), verifyPost , eventController.update)
+router.post("/",upload.single('img'), verifyCreate , eventController.create)
 
 
 module.exports = router

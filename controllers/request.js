@@ -20,7 +20,7 @@ exports.approve = (req, res) => {
   Post.update({ status: "approved" }, { where: { id } })
     .then((_) => {
       Request.destroy({ where: { postId: id } })
-        .then((_) => sendResStatus(res, 203))
+        .then((_) => sendResStatus(res, 203,"Post Approved"))
         .catch((_) => sendResStatus(res, 500));
     })
     .catch((_) => sendResStatus(res, 500));

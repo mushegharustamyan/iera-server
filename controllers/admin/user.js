@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { User } = require("../../db/sequelize");
 const {
@@ -7,6 +8,7 @@ const {
   s3,
 } = require("../../utils/helpers");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { JsonWebTokenError } = require("jsonwebtoken");
 
 exports.create = async (req, res) => {
   const { name, password, login, roleId } = req.body;
@@ -23,8 +25,8 @@ exports.create = async (req, res) => {
         ContentType: file.mimetype,
       };
       await s3.send(new PutObjectCommand(params));
-      const url= `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-      Location = url
+      const url = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+      Location = url;
     }
     const user = await User.create({
       name,
@@ -41,20 +43,24 @@ exports.create = async (req, res) => {
 };
 exports.delete = async (req, res) => {
   const { id } = req.params;
+  const { token } = req.headers;
 
   try {
+    if (+id === jwt.decode(token).id) return sendResStatus(res, 409, "Conflict");
+
     const user = await User.findOne({ where: { id } });
     if (!user) {
       return sendResStatus(res, 404);
     }
 
     const imageUrl = user.img;
-
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: imageUrl.split("/").pop(),
-    };
-    await s3.send(new DeleteObjectCommand(params));
+    if (imageUrl) {
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: imageUrl.split("/").pop(),
+      };
+      await s3.send(new DeleteObjectCommand(params));
+    }
 
     await User.destroy({ where: { id } });
 
@@ -121,7 +127,9 @@ exports.update = async (req, res) => {
 };
 
 exports.index = (req, res) => {
-  User.findAll()
+  User.findAll({
+    attributes: { exclude: ["createdAt", "updatedAt", "password"] },
+  })
     .then((result) => sendResBody(res, 200, result))
     .catch((_) => sendResStatus(res, 500));
 };
@@ -129,7 +137,9 @@ exports.index = (req, res) => {
 exports.show = (req, res) => {
   const { id } = req.params;
 
-  User.findByPk(id)
+  User.findByPk(id, {
+    attributes: { exclude: ["createdAt", "updatedAt", "password"] },
+  })
     .then((result) => sendResBody(res, 200, result))
     .catch((_) => sendResStatus(res, 500));
 };

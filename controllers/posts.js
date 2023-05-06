@@ -7,8 +7,9 @@ const STATUS_APPROVED = "approved";
 
 exports.index = async (req, res) => {
   try {
-    const { startDate = "01/01/1999", endDate = "31/12/9999" } = req.query;
+    const { startDate = "01/01/1900", endDate = "31/12/3000" } = req.query;
     const { order = "ASC" } = req.params;
+    console.log(startDate, endDate);
 
     const validOrder = ["DESC", "ASC"];
     const selectedOrder = validOrder.includes(order) ? order : "ASC";
@@ -23,16 +24,12 @@ exports.index = async (req, res) => {
           [Op.or]: [
             {
               date: {
-                [Op.between]: [
-                  start.format("DD/MM/YYYY"),
-                  end.format("DD/MM/YYYY"),
-                ],
+                [Op.between]: [startDate, endDate],
               },
-            },
-            {
-              type: "event",
-              startDate: { [Op.gte]: start.format("DD/MM/YYYY") },
-              endDate: { [Op.lte]: end.format("DD/MM/YYYY") },
+              startDate: { [Op.between]: [startDate, endDate] },
+              endDate: {
+                [Op.between]: [startDate, endDate],
+              },
             },
           ],
         },
