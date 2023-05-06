@@ -3,8 +3,8 @@ const { sendResBody, sendResStatus } = require("../utils/helpers")
 
 exports.show = async (req, res) => {
     try {
-      const {authorId} = req.body;
-      const user = await User.findByPk(authorId, { attributes: ["name", "img"] });
+      const {id} = req.params;
+      const user = await User.findByPk(id, { attributes: ["name", "img"] });
       if (!user) {
         return sendResStatus(res, 404);
       }
