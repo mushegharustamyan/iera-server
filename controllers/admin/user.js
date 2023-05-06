@@ -13,21 +13,25 @@ exports.create = async (req, res) => {
   const hashedPwd = await bcrypt.hash(password, 8);
   const file = req?.file;
 
-  const params = {
-    Bucket: process.env.AWS_BUCKET_NAME,
-    Key: file.originalname,
-    Body: file.buffer,
-    ContentType: file.mimetype,
-  };
   try {
-    await s3.send(new PutObjectCommand(params));
-    location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+    let Location;
+    if (file) {
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: file.originalname,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+      await s3.send(new PutObjectCommand(params));
+      const url= `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+      Location = url
+    }
     const user = await User.create({
       name,
       password: hashedPwd,
       login,
       roleId,
-      img: location,
+      img: Location,
     });
     sendResStatus(res, 201, "User Created");
   } catch (error) {
@@ -65,16 +69,16 @@ exports.update = async (req, res) => {
   const { id } = req.params;
   const { name, password, login, roleId } = req.body;
   const file = req.file;
-  
+
   try {
     const user = await User.findOne({ where: { id } });
     if (user.name === name && user.login === login) {
       return sendResStatus(res, 409);
     }
-    let uppassword = user.password
-    if(password){
+    let uppassword = user.password;
+    if (password) {
       const hashedPwd = await bcrypt.hash(password, 8);
-      uppassword = hashedPwd
+      uppassword = hashedPwd;
     }
     let imageUrl = user.img;
     if (file) {

@@ -14,22 +14,25 @@ const eventControllers = () => {
   const create = async (req, res) => {
     const { title, description, startDate, endDate, date } = req.body;
     const file = req.file;
-    console.log(file)
     const { token } = req.headers;
 
     const formatDate = new Date(date);
     const formatStartDate = new Date(startDate);
     const formaEndDate = new Date(endDate);
 
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: file.originalname,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    };
     try {
-      await s3.send(new PutObjectCommand(params));
-      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+      let Location;
+      if (file) {
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: file.originalname,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+        await s3.send(new PutObjectCommand(params));
+        const url = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+        Location = url;
+      }
       const event = await Post.create({
         title,
         description,
@@ -51,12 +54,12 @@ const eventControllers = () => {
           year: "numeric",
         }),
         type: "event",
-        img: location,
+        img: Location,
       });
       await Request.create({
         title: event.title,
         postId: event.id,
-      })
+      });
       sendResStatus(res, 201);
     } catch (error) {
       console.error(error);
@@ -103,9 +106,12 @@ const eventControllers = () => {
       });
 
       await Post.update(body, { where: { id } });
-      await Request.update({
-        reason: null
-      } , {where: {postId: id}});
+      await Request.update(
+        {
+          reason: null,
+        },
+        { where: { postId: id } }
+      );
       return sendResStatus(res, 201, "Record Updated");
     } catch (error) {
       return sendResStatus(res, 500, e);
@@ -119,7 +125,7 @@ const eventControllers = () => {
       const events = await Post.findAll({
         where: {
           authorId: id,
-          type: 'event'
+          type: "event",
         },
       });
 

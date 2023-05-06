@@ -17,16 +17,19 @@ const newsControllers = () => {
     const { token } = req.headers;
 
     const formatDate = new Date(date);
-
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: file.originalname,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    };
     try {
-      await s3.send(new PutObjectCommand(params));
-      const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+      let Location;
+      if (file) {
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: file.originalname,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+        await s3.send(new PutObjectCommand(params));
+        const url = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+        Location = url;
+      }
       const news = await Post.create({
         title,
         description,
@@ -38,7 +41,7 @@ const newsControllers = () => {
           year: "numeric",
         }),
         type: "news",
-        img: location,
+        img: Location,
       });
       await Request.create({
         title: news.title,
@@ -91,9 +94,12 @@ const newsControllers = () => {
       });
 
       const post = await Post.update(body, { where: { id } });
-      await Request.update({
-        reason: null
-      }, {where: {postId: id}});
+      await Request.update(
+        {
+          reason: null,
+        },
+        { where: { postId: id } }
+      );
       return sendResStatus(res, 201, "Record Updated");
     } catch (error) {
       return sendResStatus(res, 500, e);
@@ -108,7 +114,7 @@ const newsControllers = () => {
       const news = await Post.findAll({
         where: {
           authorId: id,
-          type: 'news'
+          type: "news",
         },
       });
 
