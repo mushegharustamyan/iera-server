@@ -2,26 +2,29 @@ const { where } = require("sequelize");
 const { Subscribe } = require("../db/sequelize");
 const { sendResStatus, sendResBody } = require("../utils/helpers");
 const ExcelJS = require("exceljs");
-const axios = require("axios")
+const axios = require("axios");
 
 exports.create = async (req, res) => {
-  const email = req.body.email;
-  const recaptchaToken = req.body.recaptchaToken;
+  try {
+    const email = req.body.email;
+    const recaptchaToken = req.body.recaptchaToken;
 
-  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-  const response = await axios.post(
-    `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`
-  );
-  const data = response.data;
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    const response = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`
+    );
+    const data = response.data;
 
-  if (!data.success) {
-    sendResBody(res, 400, "Invalid reCAPTCHA token");
-  } else {
-    const count = await Subscribe.findAll({ email });
-    if (count) return sendResStatus(res, 409);
-    Subscribe.create({ email })
-      .then((_) => sendResStatus(res, 201))
-      .catch((_) => sendResStatus(res, 500));
+    if (!data.success) {
+      sendResBody(res, 400, "Invalid reCAPTCHA token");
+    } else {o
+      const subscribtion = await Subscribe.findOne({ where: { email } });;
+      if (subscribtion) return sendResStatus(res, 409);
+      await Subscribe.create({ email });
+      sendResStatus(res, 201);
+    }
+  } catch (error) {
+    sendResStatus(res, 500);
   }
 };
 
