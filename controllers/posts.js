@@ -7,8 +7,8 @@ const STATUS_APPROVED = "approved";
 
 exports.index = async (req, res) => {
   try {
-    const { order, startDate, endDate } = req.query; 
-
+    const { startDate = "1999-01-01", endDate = "9999-12-31", order = "ASC" } = req.query;
+    // const { order = "ASC" } = req.params;
 
     const validOrder = ["DESC", "ASC"];
     const selectedOrder = validOrder.includes(order) ? order : "ASC";
@@ -36,16 +36,20 @@ exports.index = async (req, res) => {
             },
           ],
         },
-        order: [["date", selectedOrder]],
+        order: [
+          // ["type", "ASC"],?// Order by type in ascending order
+          ["date", selectedOrder], // For news, order by date; for events, order by startDate
+          ["startDate", selectedOrder], // For events, order by startDate
+        ],
       }),
     ]);
 
     sendResBody(res, 200, result);
   } catch (e) {
-    console.log(e);
     sendResStatus(res, 500);
   }
 };
+
 
 exports.show = async (req, res) => {
   const { id } = req.params;
@@ -59,7 +63,6 @@ exports.show = async (req, res) => {
 
     sendResBody(res, 200, result);
   } catch (e) {
-    console.error(e);
     sendResStatus(res, 500);
   }
 };

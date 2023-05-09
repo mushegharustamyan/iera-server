@@ -37,7 +37,6 @@ exports.create = async (req, res) => {
     });
     sendResStatus(res, 201, "User Created");
   } catch (error) {
-    console.log(error);
     return sendResStatus(res, 500);
   }
 };
@@ -66,7 +65,6 @@ exports.delete = async (req, res) => {
 
     sendResStatus(res, 204);
   } catch (error) {
-    console.log(error);
     sendResStatus(res, 500);
   }
 };
@@ -121,7 +119,6 @@ exports.update = async (req, res) => {
     });
     return sendResStatus(res, 201, "Recpord Updated");
   } catch (error) {
-    console.log(error);
     return sendResStatus(res, 500);
   }
 };

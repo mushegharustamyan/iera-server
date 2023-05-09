@@ -1,25 +1,20 @@
 const { transporter, sendResStatus, sendResBody } = require("../utils/helpers");
 const express = require("express");
 const router = express.Router();
+const axios = require("axios")
 
-function generateCaptcha() {
-  const captcha = Math.random().toString(36).substr(2, 5);
-  return captcha;
-}
-
-let storedCaptcha = null;
-
-router.get("/", (req, res) => {
-  storedCaptcha = generateCaptcha();
-  res.json({ captcha: storedCaptcha });
-});
-
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const options = req.body;
-  const userCaptcha = req.body.captcha;
+  const recaptchaToken = req.body.recaptchaToken;
 
-  if (!storedCaptcha || storedCaptcha !== userCaptcha) {
-    sendResBody(res, 400, "invalid Captcha");
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+  const response = await axios.post(
+    `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`
+  );
+  const data = response.data;
+
+  if (!data.success) {
+    sendResBody(res, 400, "Invalid reCAPTCHA token");
   } else {
     const message = `from - ${options.email} ${options.text}`;
 
@@ -31,7 +26,6 @@ router.post("/", (req, res) => {
         text: message,
       })
       .then((_) => {
-        storedCaptcha = null;
         sendResStatus(res, 201, "Email Sent");
       })
       .catch((e) => sendResStatus(res, 400, "Something went wrong"));

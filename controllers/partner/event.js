@@ -50,7 +50,6 @@ const eventControllers = () => {
       });
       sendResStatus(res, 201);
     } catch (error) {
-      console.error(error);
       sendResStatus(res, 500);
     }
   };
@@ -119,7 +118,6 @@ const eventControllers = () => {
 
       return res.status(200).json(events);
     } catch (error) {
-      console.error(error);
       return res.sendStatus(500);
     }
   };

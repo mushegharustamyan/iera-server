@@ -46,7 +46,6 @@ const eventControllers = () => {
 
       sendResStatus(res, 201);
     } catch (error) {
-      console.error(error);
       sendResStatus(res, 500);
     }
   };

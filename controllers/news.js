@@ -45,7 +45,6 @@ const newsController = () => {
       }
 
       const request = await Request.findOne({ where: { postId: id } });
-      console.log(request);
       if (request) {
         await Request.destroy({ where: { postId: id } });
       }
@@ -53,7 +52,6 @@ const newsController = () => {
 
       sendResStatus(res, 204);
     } catch (error) {
-      console.error(error);
       return sendResStatus(res, 500);
     }
   };
@@ -100,7 +98,6 @@ const newsController = () => {
 
       return sendResStatus(res, 201, "Record updated");
     } catch (error) {
-      console.error(error);
       return sendResStatus(res, 500);
     }
   };
@@ -137,7 +134,6 @@ const newsController = () => {
       });
       sendResStatus(res, 201);
     } catch (error) {
-      console.error(error);
       sendResStatus(res, 500);
     }
   };

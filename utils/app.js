@@ -15,6 +15,7 @@ const modearatorEventRouter = require("../routes/event");
 const postRouter = require("../routes/post");
 const userRouter = require("../routes/users");
 
+
 exports.ConfigRouter = (app) => {
   const {
     verifyAdmin,

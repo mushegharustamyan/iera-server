@@ -45,7 +45,6 @@ const newsControllers = () => {
       });
       sendResStatus(res, 201);
     } catch (error) {
-      console.error(error);
       sendResStatus(res, 500);
     }
   };
@@ -116,7 +115,6 @@ const newsControllers = () => {
 
       return sendResBody(res, 200, news);
     } catch (error) {
-      console.error(error);
       return res.sendStatus(500);
     }
   };

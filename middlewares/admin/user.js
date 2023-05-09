@@ -14,12 +14,11 @@ exports.verifyCreate = (req, res, next) => {
 
   User.findOne({ where: { login } })
     .then((user) => {
-      console.log(user);
       if (user) return sendResStatus(res, 409);
 
       next();
     })
-    .catch((_) => console.log("error"));
+    .catch((_) => sendResStatus(res,500));
 };
 
 exports.verifyUser = (req, res, next) => {
