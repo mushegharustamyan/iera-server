@@ -17,7 +17,7 @@ exports.create = async (req, res) => {
 
     if (!data.success) {
       sendResBody(res, 400, "Invalid reCAPTCHA token");
-    } else {o
+    } else {
       const subscribtion = await Subscribe.findOne({ where: { email } });;
       if (subscribtion) return sendResStatus(res, 409);
       await Subscribe.create({ email });
