@@ -67,7 +67,7 @@ const newsController = () => {
         return sendResStatus(res, 404);
       }
 
-      const imageUrl = news.img;
+      let  imageUrl = news.img;
       if (file) {
         const oldKey = imageUrl.split("/").pop();
         const deleteParams = {
@@ -83,7 +83,7 @@ const newsController = () => {
           Body: file.buffer,
           ContentType: file.mimetype,
         };
-        await s3.send(new PutObjectCommand(newParams));
+        await s3.send(new PutObjectCommand(uploadParams));
         const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
         imageUrl = location;
       }

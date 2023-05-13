@@ -76,7 +76,7 @@ const newsControllers = () => {
           Body: file.buffer,
           ContentType: file.mimetype,
         };
-        await s3.send(new PutObjectCommand(newParams));
+        await s3.send(new PutObjectCommand(uploadParams));
         const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
         imageUrl = location;
       }

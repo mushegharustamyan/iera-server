@@ -24,33 +24,33 @@ exports.ConfigRouter = (app) => {
   } = require("../middlewares/verifications");
 
   // Admin Routes
-  app.use("/auth", AuthRouter);
+  app.use("/backend/auth", AuthRouter);
 
-  app.use("/admin/user", verifyAdmin, adminUserRouter);
+  app.use("/backend/admin/user", verifyAdmin, adminUserRouter);
 
-  app.use("/admin/news", verifyAdmin, adminNewsRouter);
+  app.use("/backend/admin/news", verifyAdmin, adminNewsRouter);
 
-  app.use("/admin/event", verifyAdmin, adminEventRouter);
-  app.use("/", subscribeRouter); //admin/subscribers have access only superuser
-  app.use("/admin/request", verifyAdmin, requestRouter);
+  app.use("/backend/admin/event", verifyAdmin, adminEventRouter);
+  app.use("/backend/", subscribeRouter); //admin/subscribers have access only superuser
+  app.use("/backned/admin/request", verifyAdmin, requestRouter);
 
   // Moderator
 
-  app.use("/moderator/news", verifyModerator, modearatorNewsRouter);
+  app.use("/backend/moderator/news", verifyModerator, modearatorNewsRouter);
 
-  app.use("/moderator/event", verifyModerator, modearatorEventRouter);
-  app.use("/moderator/request", verifyModerator, requestRouter);
+  app.use("/backend/moderator/event", verifyModerator, modearatorEventRouter);
+  app.use("/backend/moderator/request", verifyModerator, requestRouter);
 
   // Partner
 
-  app.use("/partner/news", verifyPartner, partnerNewsRouter);
+  app.use("/backend/partner/news", verifyPartner, partnerNewsRouter);
 
-  app.use("/partner/event", verifyPartner, partnerEventRouter);
+  app.use("/backend/partner/event", verifyPartner, partnerEventRouter);
 
   //public
 
-  app.use("/news-events", postRouter);
-  app.use("/", subscribeRouter); //subscribe
-  app.use("/contact-us", contactUsRouter);
-  app.use("/user", userRouter);
+  app.use("/backend/news-events", postRouter);
+  app.use("/backend/", subscribeRouter); //subscribe
+  app.use("/backend/contact-us", contactUsRouter);
+  app.use("/backend/user", userRouter);
 };
