@@ -32,7 +32,7 @@ exports.ConfigRouter = (app) => {
 
   app.use("/backend/admin/event", verifyAdmin, adminEventRouter);
   app.use("/backend/", subscribeRouter); //admin/subscribers have access only superuser
-  app.use("/backned/admin/request", verifyAdmin, requestRouter);
+  app.use("/backend/admin/request", verifyAdmin, requestRouter);
 
   // Moderator
 

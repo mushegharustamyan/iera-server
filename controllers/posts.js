@@ -66,3 +66,21 @@ exports.show = async (req, res) => {
     sendResStatus(res, 500);
   }
 };
+
+
+exports.filter = async (req, res) => {
+  const { type } = req.query;
+
+  try {
+    const posts = await Post.findAll({
+      where: {
+        type: type
+      },
+      order: [['createdAt', 'DESC']]
+    });
+    sendResBody(res, 200, posts);
+  } catch (e) {
+    sendResStatus(res, 500);
+  }
+};
+
