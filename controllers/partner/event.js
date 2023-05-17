@@ -59,8 +59,8 @@ const eventControllers = () => {
     const { title, description, startDate, endDate } = req.body;
     const file = req.file;
 
-    const formatStartDate = new Date(startDate);
-    const formaEndDate = new Date(endDate);
+    const formatStartDate = startDate? new Date(startDate).toISOString().slice(0, 10): null;
+    const formatEndDate = endDate? new Date(endDate).toISOString().slice(0, 10) : null;
 
 
     try {
@@ -92,8 +92,8 @@ const eventControllers = () => {
         title,
         description,
         img: imageUrl,
-        startDate: formatStartDate.toISOString().slice(0, 10),
-        endDate: formaEndDate.toISOString().slice(0, 10),
+        startDate: formatStartDate,
+        endDate: formatEndDate
       });
 
       await Post.update(body, { where: { id } });
