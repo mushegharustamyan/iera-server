@@ -111,16 +111,8 @@ const eventControllers = () => {
         title,
         description,
         img: imageUrl,
-        startDate: formatStartDate.toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
-        endDate: formaEndDate.toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
+        startDate: formatStartDate.toISOString().slice(0, 10),
+        endDate: formaEndDate.toISOString().slice(0, 10),
       });
 
       await Post.update(body, { where: { id } });
