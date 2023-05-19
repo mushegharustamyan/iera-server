@@ -7,13 +7,23 @@ const STATUS_APPROVED = "approved";
 
 exports.index = async (req, res) => {
   try {
-    const { startDate = "1999-01-01", endDate = "9999-12-31", order = "ASC", type } = req.query;
+    const {
+      startDate = "1999-01-01",
+      endDate = "9999-12-31",
+      order = "ASC",
+      type,
+    } = req.query;
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
 
     const validOrder = ["DESC", "ASC"];
     const selectedOrder = validOrder.includes(order) ? order : "ASC";
 
     const start = moment(startDate, "YYYY-MM-DD");
     const end = moment(endDate, "YYYY-MM-DD");
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
 
     const whereClause = {
       status: STATUS_APPROVED,
@@ -38,7 +48,7 @@ exports.index = async (req, res) => {
       whereClause[Op.and] = { type };
     }
 
-    const [result] = await Promise.all([
+    const [posts] = await Promise.all([
       Post.findAll({
         where: whereClause,
         order: [
@@ -47,13 +57,28 @@ exports.index = async (req, res) => {
         ],
       }),
     ]);
+    const results = {};
+    const totalCount = await Post.count();
+    results.count = posts.length
 
-    sendResBody(res, 200, result);
+    if (startIndex + limit < totalCount) {
+      results.next = {
+        page: page + 1,
+      };
+    }
+    if (startIndex > 0) {
+      results.previous = {
+        page: page - 1,
+      };
+    }
+
+    results.result = posts.slice();
+
+    sendResBody(res, 200, results);
   } catch (e) {
     sendResStatus(res, 500);
   }
 };
-
 
 exports.show = async (req, res) => {
   const { id } = req.params;
@@ -70,5 +95,3 @@ exports.show = async (req, res) => {
     sendResStatus(res, 500);
   }
 };
-
-
