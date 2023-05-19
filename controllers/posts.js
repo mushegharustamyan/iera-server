@@ -72,7 +72,7 @@ exports.index = async (req, res) => {
       };
     }
 
-    results.result = posts.slice();
+    results.result = posts.slice(startIndex, endIndex);
 
     sendResBody(res, 200, results);
   } catch (e) {
