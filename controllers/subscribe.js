@@ -31,7 +31,7 @@ exports.create = async (req, res) => {
 exports.index = (req, res) => {
   Subscribe.findAll()
     .then((result) => sendResBody(res, 200, result))
-    .catch((e) => sendResStatus(res, 500));
+    .catch(() => sendResStatus(res, 500));
 };
 
 exports.delete = async (req, res) => {

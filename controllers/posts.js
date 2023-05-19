@@ -13,8 +13,8 @@ exports.index = async (req, res) => {
       order = "ASC",
       type,
     } = req.query;
-    const page = parseInt(req.query.page);
-    const limit = parseInt(req.query.limit);
+    const page = +req.query.page || 1;
+    const limit = +req.query.limit || 3;
 
     const validOrder = ["DESC", "ASC"];
     const selectedOrder = validOrder.includes(order) ? order : "ASC";
@@ -58,7 +58,7 @@ exports.index = async (req, res) => {
       }),
     ]);
     const results = {};
-    const totalCount = await Post.count();
+    await Post.count();
 
     results.count = posts.length
     results.result = posts.slice(startIndex, endIndex);

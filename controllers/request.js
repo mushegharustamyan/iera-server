@@ -28,8 +28,6 @@ exports.approve = (req, res) => {
 
 exports.decline = (req, res) => {
   const { id } = req.params;
-  const { requestId } = req.query;
-  // const { reason } = req.body;
 
   Post.update({ status: "rejected" }, { where: { id } })
     .then((_) => {
