@@ -59,19 +59,8 @@ exports.index = async (req, res) => {
     ]);
     const results = {};
     const totalCount = await Post.count();
+
     results.count = posts.length
-
-    if (startIndex + limit < totalCount) {
-      results.next = {
-        page: page + 1,
-      };
-    }
-    if (startIndex > 0) {
-      results.previous = {
-        page: page - 1,
-      };
-    }
-
     results.result = posts.slice(startIndex, endIndex);
 
     sendResBody(res, 200, results);
