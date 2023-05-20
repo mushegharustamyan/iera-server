@@ -58,8 +58,9 @@ const newsControllers = () => {
 
     try {
       const news = await Post.findByPk(id);
+	  let imageUrl;
       if (news.img !== null) {
-        let imageUrl = news.img;
+        imageUrl = news.img;
         if (file) {
           const oldKey = imageUrl.split("/").pop();
           const deleteParams = {

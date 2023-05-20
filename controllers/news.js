@@ -65,8 +65,9 @@ const newsController = () => {
 
     try {
       const news = await Post.findOne({ where: { id } });
+	  let imageUrl;
       if (news.img !== null) {
-        let imageUrl = news.img;
+        imageUrl = news.img;
         if (file) {
           const oldKey = imageUrl.split("/").pop();
           const deleteParams = {
@@ -87,6 +88,7 @@ const newsController = () => {
         const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
         imageUrl = location;
       }
+      console.log(imageUrl)
       const body = removeNullOrUndefined({
         title,
         description,
@@ -99,6 +101,7 @@ const newsController = () => {
 
       return sendResStatus(res, 201, "Record updated");
     } catch (error) {
+	  console.log(error)
       return sendResStatus(res, 500);
     }
   };
