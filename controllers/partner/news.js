@@ -57,8 +57,8 @@ const newsControllers = () => {
     const formatDate = date ? new Date(date).toISOString().slice(0, 10) : null;
 
     try {
-      const news = await Post.findByPk(id);
-	  let imageUrl;
+      const news = await Post.findOne({ where: { id } });
+      let imageUrl;
       if (news.img !== null) {
         imageUrl = news.img;
         if (file) {
@@ -68,18 +68,18 @@ const newsControllers = () => {
             Key: oldKey,
           };
           await s3.send(new DeleteObjectCommand(deleteParams));
-        }
 
-        const newKey = `${Date.now()}_${file.originalname}`;
-        const uploadParams = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: newKey,
-          Body: file.buffer,
-          ContentType: file.mimetype,
-        };
-        await s3.send(new PutObjectCommand(uploadParams));
-        const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
-        imageUrl = location;
+          const newKey = `${Date.now()}_${file.originalname}`;
+          const uploadParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: newKey,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+          };
+          await s3.send(new PutObjectCommand(uploadParams));
+          const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
+          imageUrl = location;
+        }
       }
 
       const body = removeNullOrUndefined({
