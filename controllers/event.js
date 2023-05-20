@@ -79,22 +79,26 @@ const eventControllers = () => {
     const { title, description, startDate, endDate } = req.body;
     const file = req.file;
 
-    const formatStartDate = startDate? new Date(startDate).toISOString().slice(0, 10): null;
-    const formatEndDate = endDate? new Date(endDate).toISOString().slice(0, 10) : null;
+    const formatStartDate = startDate
+      ? new Date(startDate).toISOString().slice(0, 10)
+      : null;
+    const formatEndDate = endDate
+      ? new Date(endDate).toISOString().slice(0, 10)
+      : null;
 
     try {
       const event = await Post.findOne({ where: { id } });
-      if (!event) {
-        return sendResStatus(res, 404);
-      }
-      let imageUrl = event.img;
-      if (file) {
-        const oldKey = imageUrl.split("/").pop();
-        const deleteParams = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: oldKey,
-        };
-        await s3.send(new DeleteObjectCommand(deleteParams));
+
+      if (event.img) {
+        let imageUrl = event.img;
+        if (file) {
+          const oldKey = imageUrl.split("/").pop();
+          const deleteParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: oldKey,
+          };
+          await s3.send(new DeleteObjectCommand(deleteParams));
+        }
 
         const newKey = `${Date.now()}_${file.originalname}`;
         const uploadParams = {

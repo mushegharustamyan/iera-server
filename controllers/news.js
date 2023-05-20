@@ -58,23 +58,21 @@ const newsController = () => {
 
   const update = async (req, res) => {
     const { id } = req.params;
-    const { title, description } = req.body;
+    const { title, description, date } = req.body;
     const file = req.file;
 
     try {
       const news = await Post.findOne({ where: { id } });
-      if (!news) {
-        return sendResStatus(res, 404);
-      }
-
-      let  imageUrl = news.img;
-      if (file) {
-        const oldKey = imageUrl.split("/").pop();
-        const deleteParams = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: oldKey,
-        };
-        await s3.send(new DeleteObjectCommand(deleteParams));
+      if (news.img) {
+        let imageUrl = news.img;
+        if (file) {
+          const oldKey = imageUrl.split("/").pop();
+          const deleteParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: oldKey,
+          };
+          await s3.send(new DeleteObjectCommand(deleteParams));
+        }
 
         const newKey = `${Date.now()}_${file.originalname}`;
         const uploadParams = {
@@ -92,6 +90,7 @@ const newsController = () => {
         description,
         img: imageUrl,
         status: "approved",
+        date
       });
       await Post.update(body, { where: { id } });
       Request.update({ reason: null }, { where: { postId: id } });

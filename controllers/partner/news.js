@@ -51,23 +51,21 @@ const newsControllers = () => {
 
   const update = async (req, res) => {
     const { id } = req.params;
-    const { title, description } = req.body;
+    const { title, description, date } = req.body;
     const file = req.file;
 
     try {
       const news = await Post.findByPk(id);
-      if (!news) {
-        return sendResStatus(res, 404);
-      }
-
-      let imageUrl = news.img;
-      if (file) {
-        const oldKey = imageUrl.split("/").pop();
-        const deleteParams = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: oldKey,
-        };
-        await s3.send(new DeleteObjectCommand(deleteParams));
+      if (news.img) {
+        let imageUrl = news.img;
+        if (file) {
+          const oldKey = imageUrl.split("/").pop();
+          const deleteParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: oldKey,
+          };
+          await s3.send(new DeleteObjectCommand(deleteParams));
+        }
 
         const newKey = `${Date.now()}_${file.originalname}`;
         const uploadParams = {
@@ -86,15 +84,11 @@ const newsControllers = () => {
         description,
         img: imageUrl,
         status: "pending",
+        date,
       });
 
-      const post = await Post.update(body, { where: { id } });
-      await Request.update(
-        {
-          reason: null,
-        },
-        { where: { postId: id } }
-      );
+      await Post.update(body, { where: { id } });
+      await Request.update({ where: { postId: id } });
       return sendResStatus(res, 201, "Record Updated");
     } catch (error) {
       return sendResStatus(res, 500, e);
