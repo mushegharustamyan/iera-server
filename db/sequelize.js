@@ -2,7 +2,7 @@ const { Sequelize, DataTypes, STRING } = require("sequelize");
 // const uniqid = require('uniqid');
 
 const sequelize = new Sequelize("iera", "root", "root", {
-  host: "localhost",
+  host: "mysql",
   dialect: "mysql",
 });
 

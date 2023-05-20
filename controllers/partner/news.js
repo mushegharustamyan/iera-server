@@ -54,9 +54,11 @@ const newsControllers = () => {
     const { title, description, date } = req.body;
     const file = req.file;
 
+    const formatDate = date ? new Date(date).toISOString().slice(0, 10) : null;
+
     try {
       const news = await Post.findByPk(id);
-      if (news.img) {
+      if (news.img !== null) {
         let imageUrl = news.img;
         if (file) {
           const oldKey = imageUrl.split("/").pop();
@@ -84,7 +86,7 @@ const newsControllers = () => {
         description,
         img: imageUrl,
         status: "pending",
-        date,
+        date: formatDate,
       });
 
       await Post.update(body, { where: { id } });

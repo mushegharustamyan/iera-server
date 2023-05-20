@@ -89,7 +89,7 @@ const eventControllers = () => {
     try {
       const event = await Post.findOne({ where: { id } });
 
-      if (event.img) {
+      if (event.img !== null) {
         let imageUrl = event.img;
         if (file) {
           const oldKey = imageUrl.split("/").pop();

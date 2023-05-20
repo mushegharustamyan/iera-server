@@ -61,9 +61,11 @@ const newsController = () => {
     const { title, description, date } = req.body;
     const file = req.file;
 
+    const formatDate = date? new Date(date).toISOString().slice(0, 10): null;
+
     try {
       const news = await Post.findOne({ where: { id } });
-      if (news.img) {
+      if (news.img !== null) {
         let imageUrl = news.img;
         if (file) {
           const oldKey = imageUrl.split("/").pop();
@@ -90,7 +92,7 @@ const newsController = () => {
         description,
         img: imageUrl,
         status: "approved",
-        date
+        date: formatDate
       });
       await Post.update(body, { where: { id } });
       Request.update({ reason: null }, { where: { postId: id } });
