@@ -3,7 +3,7 @@ const mysql = require('mysql2')
 const connectionInit = async () =>
     new Promise((resolove, reject) => {
         const connection = mysql.createConnection({
-            host: "mysql",
+            host: "localhost",
             user: "root",
             password: "root",
             port: "3306"
