@@ -83,8 +83,8 @@ const eventControllers = () => {
         const uploadParams = {
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: newKey,
-          Body: file.buffer,
-          ContentType: file.mimetype,
+          Body: uploadedFile.buffer,
+          ContentType: uploadedFile.mimetype,
         };
         await s3.send(new PutObjectCommand(uploadParams));
         const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
