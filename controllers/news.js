@@ -59,33 +59,33 @@ const newsController = () => {
   const update = async (req, res) => {
     const { id } = req.params;
     const { title, description, date } = req.body;
-    const file = req.file;
+    const uploadedFile = req.file;
 
     const formatDate = date ? new Date(date).toISOString().slice(0, 10) : null;
 
     try {
       const news = await Post.findOne({ where: { id } });
       let imageUrl;
-      if (news.img !== null) {
-        imageUrl = news.img;
-        if (file) {
+      if (uploadedFile) {
+        if (news.img !== null) {
+          imageUrl = news.img;
           const oldKey = imageUrl.split("/").pop();
           const deleteParams = {
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: oldKey,
           };
           await s3.send(new DeleteObjectCommand(deleteParams));
-          const newKey = `${Date.now()}_${file.originalname}`;
-          const uploadParams = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: newKey,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-          };
-          await s3.send(new PutObjectCommand(uploadParams));
-          const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
-          imageUrl = location;
         }
+        const newKey = `${Date.now()}_${uploadedFile.originalname}`;
+        const uploadParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: newKey,
+          Body: uploadedFile.buffer,
+          ContentType: uploadedFile.mimetype,
+        };
+        await s3.send(new PutObjectCommand(uploadParams));
+        const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
+        imageUrl = location;
       }
 
       const body = removeNullOrUndefined({
@@ -96,7 +96,7 @@ const newsController = () => {
         date: formatDate,
       });
       await Post.update(body, { where: { id } });
-      Request.update({ reason: null }, { where: { postId: id } });
+      await Request.update({ where: { postId: id } });
 
       return sendResStatus(res, 201, "Record updated");
     } catch (error) {

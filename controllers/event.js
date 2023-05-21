@@ -77,7 +77,7 @@ const eventControllers = () => {
   const update = async (req, res) => {
     const { id } = req.params;
     const { title, description, startDate, endDate } = req.body;
-    const file = req.file;
+    const uploadedFile = req.file;
 
     const formatStartDate = startDate
       ? new Date(startDate).toISOString().slice(0, 10)
@@ -89,28 +89,28 @@ const eventControllers = () => {
     try {
       const event = await Post.findOne({ where: { id } });
       let imageUrl;
-      if (event.img !== null) {
-        imageUrl = event.img;
-        if (file) {
+      if (uploadedFile) {
+        if (event.img !== null) {
+          imageUrl = event.img;
           const oldKey = imageUrl.split("/").pop();
           const deleteParams = {
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: oldKey,
           };
           await s3.send(new DeleteObjectCommand(deleteParams));
-
-          const newKey = `${Date.now()}_${file.originalname}`;
-          const uploadParams = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: newKey,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-          };
-          await s3.send(new PutObjectCommand(uploadParams));
-          const url = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
-          imageUrl = url;
         }
+        const newKey = `${Date.now()}_${file.originalname}`;
+        const uploadParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: newKey,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+        await s3.send(new PutObjectCommand(uploadParams));
+        const location = `https://${uploadParams.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
+        imageUrl = location;
       }
+
       const body = removeNullOrUndefined({
         title,
         description,
